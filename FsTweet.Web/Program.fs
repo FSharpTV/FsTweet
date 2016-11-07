@@ -1,8 +1,10 @@
-﻿// Learn more about F# at http://fsharp.net
-// See the 'F# Tutorial' project for more help.
+﻿module FsTweet.Web.Program
+open Suave
+open Suave.Web
+open Suave.Successful
 
 [<EntryPoint>]
 let main argv = 
-    printfn "%A" argv
+    startWebServer defaultConfig (OK "hello")
     0 // return an integer exit code
 

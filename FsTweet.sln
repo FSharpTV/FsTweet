@@ -1,11 +1,6 @@
 
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0415BD34-EFEE-461C-B7FD-6FADFCBE36D2}"
-	ProjectSection(SolutionItems) = preProject
-		paket.dependencies = paket.dependencies
-	EndProjectSection
-EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsTweet.Domain", "FsTweet.Domain\FsTweet.Domain.fsproj", "{28E4E187-E21C-4A27-BC66-C817FEBF0F50}"
 EndProject
 Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsTweet.Persistence", "FsTweet.Persistence\FsTweet.Persistence.fsproj", "{18C1FB1E-8A0F-46E8-AFF2-0F6F4BB25F6B}"
