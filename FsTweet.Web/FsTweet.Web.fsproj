@@ -60,12 +60,20 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="views\" />
+    <Folder Include="assets\" />
+    <Folder Include="assets\images\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="views\page.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="views\guest_home.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="assets\styles.css">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="assets\images\FsTweetLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

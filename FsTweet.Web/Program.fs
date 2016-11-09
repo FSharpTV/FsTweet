@@ -4,7 +4,9 @@ open Suave
 open System.Reflection
 open System.IO
 open Suave.DotLiquid
-
+open Suave.Operators
+open Suave.Filters
+open Suave.Files
 let currentDirectory =
   let mainExeFileInfo = new FileInfo(Assembly.GetEntryAssembly().Location)
   mainExeFileInfo.Directory
@@ -15,6 +17,11 @@ setTemplatesDir viewsDirectory
 
 [<EntryPoint>]
 let main argv = 
-  startWebServer defaultConfig (page "guest_home.html" "")
+  let app = 
+    choose[
+     path "/" >=> page "guest_home.html" ""
+     browseHome
+    ] 
+  startWebServer defaultConfig app
   0
 
