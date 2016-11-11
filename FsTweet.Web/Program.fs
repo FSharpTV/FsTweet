@@ -20,6 +20,7 @@ let main argv =
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
+     path "/signup" >=> page "signup.html" ""
      browseHome
     ] 
   startWebServer defaultConfig app
