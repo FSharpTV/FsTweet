@@ -7,6 +7,9 @@ open Suave.DotLiquid
 open Suave.Operators
 open Suave.Filters
 open Suave.Files
+open UserSignup
+
+
 let currentDirectory =
   let mainExeFileInfo = new FileInfo(Assembly.GetEntryAssembly().Location)
   mainExeFileInfo.Directory
@@ -20,7 +23,7 @@ let main argv =
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
-     path "/signup" >=> page "signup.html" ""
+     UserSignup
      browseHome
     ] 
   startWebServer defaultConfig app
