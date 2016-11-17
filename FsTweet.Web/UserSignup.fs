@@ -16,7 +16,7 @@ type UserSignupViewModel = {
   Email : string
   Password: string
   ConfirmPassword: string
-  Error : string
+  Error : string list
 }
 
 let mapCreateUser vm =
@@ -31,19 +31,10 @@ let emptyUserSignupViewModel =
     Email = ""
     Password = ""
     ConfirmPassword = ""
-    Error = ""
+    Error = []
   }
 
- 
-// UserSignupViewModel -> bool * string
-// (UserSignupViewModel -> bool) * string
-let userSignupViewModelForm : Form<UserSignupViewModel> = 
-  let validate vm =
-    match mapCreateUser vm with
-    | Ok _ -> true, ""
-    | Error errs -> false, errs.Head
-  let foo vm = (validate vm |> fst)
-  Form([],[(foo, "")])
+let userSignupViewModelForm : Form<UserSignupViewModel> = Form([],[])
 
 type UserSignupRequest = {
   Username : string
@@ -52,25 +43,14 @@ type UserSignupRequest = {
   ConfirmPassword: Password
 }
 
-
-let userSignupRequestForm : Form<UserSignupRequest> =
-  let userName = TextProp ((fun m -> <@ m.Username @>), [maxLength 8])
-  let password = PasswordProp ((fun m -> <@ m.Password @>), [passwordRegex @"(\w){6,20}"])
-  let passwordsMatch =
-    (fun f -> f.Password = f.ConfirmPassword), "Passwords must match"
-  let properties = [userName;password]
-  Form(properties,[passwordsMatch])
-
 let handleUserSignup ctx = async {
-  match bindForm userSignupRequestForm ctx.request with
+  match bindForm userSignupViewModelForm ctx.request with
   | Choice1Of2 signupRequest -> 
-    printfn "%A" signupRequest
-    return! NOT_FOUND "" ctx
+    match mapCreateUser signupRequest with
+    | Ok cu -> printfn "%A" cu; return! NOT_FOUND "" ctx
+    | Error errs -> return! page "signup.html" {signupRequest with Error = errs} ctx 
   | Choice2Of2 err -> 
-    match bindForm userSignupViewModelForm ctx.request with
-    | Choice1Of2 signupViewModel ->
-      return! page "signup.html" {signupViewModel with Error = err} ctx
-    | _ -> return! page "signup.html" emptyUserSignupViewModel ctx
+    return! page "signup.html" emptyUserSignupViewModel ctx
 }
 
 let UserSignup = 
