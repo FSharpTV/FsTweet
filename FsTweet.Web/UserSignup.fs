@@ -1,6 +1,7 @@
 ﻿module FsTweet.Web.UserSignup
 
-
+open FsTweet.Domain.UserSignup
+open FsTweet.Domain.ResultExtensions
 open Suave
 open Suave.Operators
 open Suave.DotLiquid
@@ -18,6 +19,12 @@ type UserSignupViewModel = {
   Error : string
 }
 
+let mapCreateUser vm =
+  Ok createUser 
+    <*> Username.tryCreate vm.Username
+    <*> EmailAddress.tryCreate vm.Email
+    <*> Password.tryCreate vm.Password
+
 let emptyUserSignupViewModel = 
   {
     Username = ""
@@ -27,7 +34,16 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-let userSignupViewModelForm : Form<UserSignupViewModel> = Form([],[])
+ 
+// UserSignupViewModel -> bool * string
+// (UserSignupViewModel -> bool) * string
+let userSignupViewModelForm : Form<UserSignupViewModel> = 
+  let validate vm =
+    match mapCreateUser vm with
+    | Ok _ -> true, ""
+    | Error errs -> false, errs.Head
+  let foo vm = (validate vm |> fst)
+  Form([],[(foo, "")])
 
 type UserSignupRequest = {
   Username : string
