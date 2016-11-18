@@ -15,8 +15,7 @@ type UserSignupViewModel = {
   Username : string
   Email : string
   Password: string
-  ConfirmPassword: string
-  Error : string list
+  Error : string
 }
 
 let mapCreateUser vm =
@@ -30,25 +29,18 @@ let emptyUserSignupViewModel =
     Username = ""
     Email = ""
     Password = ""
-    ConfirmPassword = ""
-    Error = []
+    Error = ""
   }
 
-let userSignupViewModelForm : Form<UserSignupViewModel> = Form([],[])
-
-type UserSignupRequest = {
-  Username : string
-  Email : MailAddress
-  Password: Password
-  ConfirmPassword: Password
-}
 
 let handleUserSignup ctx = async {
-  match bindForm userSignupViewModelForm ctx.request with
+  match bindForm (Form([],[])) ctx.request with
   | Choice1Of2 signupRequest -> 
     match mapCreateUser signupRequest with
-    | Ok cu -> printfn "%A" cu; return! NOT_FOUND "" ctx
-    | Error errs -> return! page "signup.html" {signupRequest with Error = errs} ctx 
+    | Ok createUser -> 
+      return! Redirection.FOUND "/" ctx
+    | Error errs -> 
+      return! page "signup.html" {signupRequest with Error = errs.Head} ctx 
   | Choice2Of2 err -> 
     return! page "signup.html" emptyUserSignupViewModel ctx
 }
