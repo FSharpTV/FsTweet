@@ -18,8 +18,14 @@ type UserSignupViewModel = {
   Error : string
 }
 
+let newCreateUser username emailAddress password = {
+  Username = username
+  EmailAddress = emailAddress
+  Password = password
+}
+
 let mapCreateUser vm =
-  Ok createUser 
+  Ok newCreateUser 
     <*> Username.tryCreate vm.Username
     <*> EmailAddress.tryCreate vm.Email
     <*> Password.tryCreate vm.Password
