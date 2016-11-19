@@ -1,5 +1,17 @@
 ﻿module FsTweet.Domain.UserSignup
-open FsTweet.Domain.AsynResult
+open FsTweet.Domain.ResultExtensions
+
+type Error = 
+| RequestError of string
+| SystemError of string
+
+let mapValidationError errMsg asyncResult = async {
+  let! result = asyncResult
+  match result with
+  | Ok isValid when isValid -> return Ok isValid
+  | Ok x -> return RequestError errMsg |> Error
+  | Error err -> return SystemError err |> Error
+}
 
 type Username = private Username of string with
   member this.Value = 
@@ -44,30 +56,24 @@ type UserCreated = {
 
 type UserPersistence = {
   IsUniqueUsername : Username -> Async<Result<bool,string>>
-  IsUniqueEmail : EmailAddress -> Async<Result<bool,string>>
-  CreateUser : CreateUser -> Async<Result<UserCreated, string list>>
+  IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,string>>
+  CreateUser : CreateUser -> Async<Result<UserCreated, string>>
+}
+let validate persistence createUser = async {
+  let! s = 
+     createUser.Username
+     |> persistence.IsUniqueUsername
+     |> mapValidationError "Username already exists"
+  let! _ =
+    createUser.EmailAddress
+     |> persistence.IsUniqueEmailAddress
+     |> mapValidationError "Email address already exists"
+  return Ok createUser
 }
 
-// let foo persistence createUser =
-//   let f isUniqueUsername isEmailAddress =
-//     match isUniqueUsername, isEmailAddress with
-//     | true, true -> persistence.CreateUser createUser
-//     | _ -> ["Username or Email address already exists"] |> Error |> async.Return
-
 let tryCreateUser persistence createUser = async {
-  let! isUniqueUsernameR = persistence.IsUniqueUsername createUser.Username
-  match isUniqueUsernameR with
-  | Ok isUniqueUsername -> 
-    match isUniqueUsername with
-    | true -> 
-      let! isUniqueEmailR = persistence.IsUniqueEmail createUser.EmailAddress
-      match isUniqueEmailR with
-      | Ok isUniqueEmail ->
-        match isUniqueEmail with
-        | true -> 
-          return! persistence.CreateUser createUser
-        | _ -> return Error [sprintf "Emailaddress '%s' already exists" createUser.EmailAddress.Value]
-      | Error err -> return Error [err]
-    | _ -> return Error [sprintf "Username '%s' already exists" createUser.Username.Value]
-  | Error err -> return Error [err]
+  let! validationR = validate persistence createUser
+  Async.RunSynchronously
+  // TODO
+  return 0
 }

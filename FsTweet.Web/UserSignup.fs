@@ -38,7 +38,6 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-
 let handleUserSignup ctx = async {
   match bindForm (Form([],[])) ctx.request with
   | Choice1Of2 signupRequest -> 

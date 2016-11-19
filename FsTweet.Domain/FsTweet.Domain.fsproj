@@ -40,7 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="AsyncResult.fs" />
     <Compile Include="ResultExtensions.fs" />
     <Compile Include="UserSignup.fs" />
   </ItemGroup>

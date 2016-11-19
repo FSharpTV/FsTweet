@@ -8,7 +8,13 @@ type Result<'T,'E> with
     | _, Error e -> Error e
     | Error e, _ -> Error e
 
+  static member bind f xR =
+    match xR with
+    | Ok x -> f x
+    | Error err -> Error err
 
 let inline (<*>) fR xR = Result.apply fR xR
+let inline (>>=) f xR = Result.bind f xR
+
    
   
