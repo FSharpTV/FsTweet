@@ -41,6 +41,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="Core.fs" />
+    <Compile Include="ResultExtensions.fs" />
     <Compile Include="UserSignup.fs" />
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />

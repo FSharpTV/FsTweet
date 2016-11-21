@@ -1,7 +1,7 @@
 ﻿module FsTweet.Web.UserSignup
 
 open FsTweet.Domain.UserSignup
-open FsTweet.Domain.Core.ResultOperators
+open ResultExtensions
 open Suave
 open Suave.Operators
 open Suave.DotLiquid

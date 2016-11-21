@@ -1,15 +1,7 @@
 ﻿module FsTweet.Domain.UserSignup
 
 open FsTweet.Domain.Core
-open FsTweet.Domain.Core.ResultOperators
-
-let mapAsyncResult errMsg asyncResult = async {
- let! result = asyncResult
- match result with
- | Ok isValid when isValid -> return Ok isValid
- | Ok x -> return errMsg |> RequestError |> Error
- | Error err -> return Error err
-}
+open ResultExtensions
 
 type Username = private Username of string with
   member this.Value = 
@@ -59,12 +51,15 @@ type UserPersistence = {
 }
 
 let createUserValidations persistence createUser = 
+  let isUnique msg = function
+  | true -> Ok true
+  | false -> RequestError msg |> Error 
   [ createUser.Username
           |> persistence.IsUniqueUsername
-          |> mapAsyncResult "Username address already exists"
+          |> mapAsyncOkResult (isUnique "Username address already exists")
     createUser.EmailAddress
           |> persistence.IsUniqueEmailAddress
-          |> mapAsyncResult "Email address already exists"]
+          |> mapAsyncOkResult (isUnique "Email address already exists")]
 
 let rec createUserIfValid validations persistence createUser = async {
   match validations with

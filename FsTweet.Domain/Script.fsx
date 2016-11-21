@@ -1,8 +1,9 @@
 #load "./Core.fs"
+#load "./ResultExtensions.fs"
 #load "./UserSignup.fs"
 
 open FsTweet.Domain.Core
-open FsTweet.Domain.Core.ResultOperators
+open ResultExtensions
 open FsTweet.Domain.UserSignup
 
 let newCreateUser username emailAddress password = {
@@ -18,7 +19,7 @@ let (Ok user) =
     <*> Password.tryCreate "foobar"
 
 let persistence = {
-  IsUniqueUsername = fun _ -> false |> Ok |> async.Return
+  IsUniqueUsername = fun _ -> true |> Ok |> async.Return
   IsUniqueEmailAddress = fun _ -> true |> Ok |> async.Return
   CreateUser = fun _ -> {UserId = System.Guid.NewGuid()} |> Ok |> async.Return
 }
