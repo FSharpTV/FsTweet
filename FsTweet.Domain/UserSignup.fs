@@ -1,16 +1,14 @@
 ﻿module FsTweet.Domain.UserSignup
-open FsTweet.Domain.ResultExtensions
 
-type Error = 
-| RequestError of string
-| SystemError of string
+open FsTweet.Domain.Core
+open FsTweet.Domain.Core.ResultOperators
 
-let mapValidationError errMsg asyncResult = async {
-  let! result = asyncResult
-  match result with
-  | Ok isValid when isValid -> return Ok isValid
-  | Ok x -> return RequestError errMsg |> Error
-  | Error err -> return SystemError err |> Error
+let mapAsyncResult errMsg asyncResult = async {
+ let! result = asyncResult
+ match result with
+ | Ok isValid when isValid -> return Ok isValid
+ | Ok x -> return errMsg |> RequestError |> Error
+ | Error err -> return Error err
 }
 
 type Username = private Username of string with
@@ -55,25 +53,30 @@ type UserCreated = {
 }
 
 type UserPersistence = {
-  IsUniqueUsername : Username -> Async<Result<bool,string>>
-  IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,string>>
-  CreateUser : CreateUser -> Async<Result<UserCreated, string>>
+  IsUniqueUsername : Username -> Async<Result<bool,Error>>
+  IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,Error>>
+  CreateUser : CreateUser -> Async<Result<UserCreated, Error>>
 }
-let validate persistence createUser = async {
-  let! s = 
-     createUser.Username
-     |> persistence.IsUniqueUsername
-     |> mapValidationError "Username already exists"
-  let! _ =
+
+let createUserValidations persistence createUser = 
+  [ createUser.Username
+          |> persistence.IsUniqueUsername
+          |> mapAsyncResult "Username address already exists"
     createUser.EmailAddress
-     |> persistence.IsUniqueEmailAddress
-     |> mapValidationError "Email address already exists"
-  return Ok createUser
+          |> persistence.IsUniqueEmailAddress
+          |> mapAsyncResult "Email address already exists"]
+
+let rec createUserIfValid validations persistence createUser = async {
+  match validations with
+  | [] -> return! persistence.CreateUser createUser
+  | x :: xs ->
+    let! xR = x
+    match xR with
+    | Ok _ -> return! createUserIfValid xs persistence createUser
+    | Error err -> return Error err
 }
 
 let tryCreateUser persistence createUser = async {
-  let! validationR = validate persistence createUser
-  Async.RunSynchronously
-  // TODO
-  return 0
+  let validations = createUserValidations persistence createUser
+  return! createUserIfValid validations persistence createUser
 }

@@ -1,7 +1,8 @@
-#load "./ResultExtensions.fs"
+#load "./Core.fs"
 #load "./UserSignup.fs"
 
-open FsTweet.Domain.ResultExtensions
+open FsTweet.Domain.Core
+open FsTweet.Domain.Core.ResultOperators
 open FsTweet.Domain.UserSignup
 
 let newCreateUser username emailAddress password = {
@@ -22,4 +23,5 @@ let persistence = {
   CreateUser = fun _ -> {UserId = System.Guid.NewGuid()} |> Ok |> async.Return
 }
 
-let (result : Result<CreateUser, Error>) = validate persistence user |> Async.RunSynchronously
+let (result : Result<UserCreated, Error>) = 
+  tryCreateUser persistence user |> Async.RunSynchronously

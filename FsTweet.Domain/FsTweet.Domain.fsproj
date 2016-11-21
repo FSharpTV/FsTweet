@@ -40,7 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
-    <Compile Include="ResultExtensions.fs" />
+    <Compile Include="Core.fs" />
     <Compile Include="UserSignup.fs" />
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />
