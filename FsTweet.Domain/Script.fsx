@@ -14,14 +14,18 @@ let newCreateUser username emailAddress password = {
 
 let (Ok user) =
   Ok newCreateUser 
-    <*> Username.tryCreate "tamizh"
-    <*> EmailAddress.tryCreate "tamizh@fs.com"
-    <*> Password.tryCreate "foobar"
+    <*> Username.TryCreate "tamizh"
+    <*> EmailAddress.TryCreate "tamizh@fs.com"
+    <*> Password.TryCreate "foobar"
+
+let (Ok userId) = 
+  let id = new System.Guid() 
+  id.ToString() |> UserId.TryCreate
 
 let persistence = {
   IsUniqueUsername = fun _ -> true |> Ok |> async.Return
   IsUniqueEmailAddress = fun _ -> true |> Ok |> async.Return
-  CreateUser = fun _ -> {UserId = System.Guid.NewGuid()} |> Ok |> async.Return
+  CreateUser = fun _ -> {UserId = userId} |> Ok |> async.Return
 }
 
 let (result : Result<UserCreated, Error>) = 

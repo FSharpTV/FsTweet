@@ -1,15 +1,13 @@
 ﻿module FsTweet.Web.UserSignup
 
+open FsTweet.Domain.Core
 open FsTweet.Domain.UserSignup
 open ResultExtensions
 open Suave
 open Suave.Operators
 open Suave.DotLiquid
 open Suave.Filters
-
 open Suave.Form
-open Suave.RequestErrors
-open System.Net.Mail
 
 type UserSignupViewModel = {
   Username : string
@@ -26,9 +24,9 @@ let newCreateUser username emailAddress password = {
 
 let mapCreateUser vm =
   Ok newCreateUser 
-    <*> Username.tryCreate vm.Username
-    <*> EmailAddress.tryCreate vm.Email
-    <*> Password.tryCreate vm.Password
+    <*> Username.TryCreate vm.Username
+    <*> EmailAddress.TryCreate vm.Email
+    <*> Password.TryCreate vm.Password
 
 let emptyUserSignupViewModel = 
   {

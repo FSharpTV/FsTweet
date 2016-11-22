@@ -3,37 +3,6 @@
 open FsTweet.Domain.Core
 open ResultExtensions
 
-type Username = private Username of string with
-  member this.Value = 
-    let (Username username) = this
-    username
-  static member tryCreate (username : string) =
-    match username with
-    | null | ""  -> Error ["Username should not be empty"] 
-    | x when x.Length > 8 -> Error ["Username should not be more than 8 characters"]
-    | x -> Username x |> Ok
-
-type EmailAddress = private EmailAddress of string with
-  member this.Value =
-    let (EmailAddress emailAddress) = this
-    emailAddress
-  static member tryCreate (emailAddress : string) =
-   try 
-     let _ = new System.Net.Mail.MailAddress(emailAddress)
-     EmailAddress emailAddress |> Ok
-   with
-     | _ -> Error ["Invalid Email Address"]
-
-type Password = private Password of string with 
-  member this.Value =
-    let (Password password) = this
-    password
-  static member tryCreate (password : string) =
-    match password with
-    | null | ""  -> Error ["Password should not be empty"] 
-    | x when x.Length < 4 || x.Length > 8 -> Error ["Password should contain only 4-8 characters"]
-    | x -> Password x |> Ok
- 
 type CreateUser = {
   Username : Username
   EmailAddress : EmailAddress
@@ -41,7 +10,7 @@ type CreateUser = {
 }
 
 type UserCreated = {
-  UserId : System.Guid
+  UserId : UserId
 }
 
 type UserPersistence = {
@@ -50,7 +19,7 @@ type UserPersistence = {
   CreateUser : CreateUser -> Async<Result<UserCreated, Error>>
 }
 
-let createUserValidations persistence createUser = 
+let private createUserValidations persistence createUser = 
   let isUnique msg = function
   | true -> Ok true
   | false -> RequestError msg |> Error 
@@ -61,7 +30,7 @@ let createUserValidations persistence createUser =
           |> persistence.IsUniqueEmailAddress
           |> mapAsyncOkResult (isUnique "Email address already exists")]
 
-let rec createUserIfValid validations persistence createUser = async {
+let rec private createUserIfValid validations persistence createUser = async {
   match validations with
   | [] -> return! persistence.CreateUser createUser
   | x :: xs ->
