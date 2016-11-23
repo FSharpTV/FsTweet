@@ -8,11 +8,6 @@ type Result<'T,'E> with
     | _, Error e -> Error e
     | Error e, _ -> Error e
 
-  static member Map f xR =
-    match xR with
-    | Ok x -> Ok (f x)
-    | Error e -> Error e 
-
 let inline (<*>) fR xR = Result.Apply fR xR
 
 let mapAsyncOkResult f asyncResult = async {

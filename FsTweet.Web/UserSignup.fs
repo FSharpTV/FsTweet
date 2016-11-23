@@ -37,7 +37,7 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-let doCreateUser (userPersistence : UserPersistence) signupRequest createUser ctx = async {
+let tryCreateUser (userPersistence : UserPersistence) signupRequest createUser ctx = async {
   let createUserPersistence : CreateUserPersistence = {
     IsUniqueUsername = userPersistence.IsUniqueUsername
     IsUniqueEmailAddress = userPersistence.IsUniqueEmailAddress
@@ -59,7 +59,7 @@ let handleUserSignup userPersistence ctx = async {
   | Choice1Of2 signupRequest -> 
     match mapCreateUser signupRequest with
     | Ok createUser -> 
-      return! doCreateUser userPersistence signupRequest createUser ctx
+      return! tryCreateUser userPersistence signupRequest createUser ctx
     | Error errs -> 
       return! page "signup.html" {signupRequest with Error = errs.Head} ctx 
   | Choice2Of2 err -> 
