@@ -11,15 +11,17 @@ type CreateUser = {
 
 type UserCreated = {
   UserId : UserId
+  Username: Username
+  EmailAddress : EmailAddress
 }
 
-type UserPersistence = {
+type CreateUserPersistence = {
   IsUniqueUsername : Username -> Async<Result<bool,Error>>
   IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,Error>>
   CreateUser : CreateUser -> Async<Result<UserCreated, Error>>
 }
 
-let private createUserValidations persistence createUser = 
+let private createUserValidations persistence (createUser : CreateUser) = 
   let isUnique msg = function
   | true -> Ok true
   | false -> RequestError msg |> Error 

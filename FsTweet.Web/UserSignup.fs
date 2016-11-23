@@ -2,6 +2,7 @@
 
 open FsTweet.Domain.Core
 open FsTweet.Domain.UserSignup
+open FsTweet.Persistence.User
 open ResultExtensions
 open Suave
 open Suave.Operators
@@ -16,7 +17,7 @@ type UserSignupViewModel = {
   Error : string
 }
 
-let newCreateUser username emailAddress password = {
+let newCreateUser username emailAddress password : CreateUser = {
   Username = username
   EmailAddress = emailAddress
   Password = password
@@ -36,20 +37,37 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-let handleUserSignup ctx = async {
+let doCreateUser (userPersistence : UserPersistence) signupRequest createUser ctx = async {
+  let createUserPersistence : CreateUserPersistence = {
+    IsUniqueUsername = userPersistence.IsUniqueUsername
+    IsUniqueEmailAddress = userPersistence.IsUniqueEmailAddress
+    CreateUser = userPersistence.CreateUser
+  }
+  let! userCreateResult = tryCreateUser createUserPersistence createUser
+  match userCreateResult with
+  | Ok userCreated ->
+    printfn "%A" userCreated
+    return! Redirection.redirect "/" ctx
+  | Error err ->
+    match err with
+    | RequestError e | PersistenceError e -> 
+      return! page "signup.html" {signupRequest with Error = e} ctx 
+}
+
+let handleUserSignup userPersistence ctx = async {
   match bindForm (Form([],[])) ctx.request with
   | Choice1Of2 signupRequest -> 
     match mapCreateUser signupRequest with
     | Ok createUser -> 
-      return! Redirection.FOUND "/" ctx
+      return! doCreateUser userPersistence signupRequest createUser ctx
     | Error errs -> 
       return! page "signup.html" {signupRequest with Error = errs.Head} ctx 
   | Choice2Of2 err -> 
     return! page "signup.html" emptyUserSignupViewModel ctx
 }
 
-let UserSignup = 
+let UserSignup userPersistence = 
   path "/signup" 
     >=> choose[
           GET >=> page "signup.html" emptyUserSignupViewModel
-          POST >=> handleUserSignup]
+          POST >=> handleUserSignup userPersistence]

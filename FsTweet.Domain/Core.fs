@@ -47,7 +47,7 @@ type UserId = private UserId of Guid with
     with
     | _ -> Error ["Invalid GUID"]
 
-type UserStatus = ActivationEmailSent | Activated
+type UserStatus = Created | Activated
  
 type User = {
   Id : UserId

@@ -8,7 +8,7 @@ open Suave.Operators
 open Suave.Filters
 open Suave.Files
 open UserSignup
-
+open FsTweet.Persistence.User
 
 let currentDirectory =
   let mainExeFileInfo = new FileInfo(Assembly.GetEntryAssembly().Location)
@@ -19,11 +19,11 @@ let viewsDirectory = Path.Combine(currentDirectory.FullName, "views")
 setTemplatesDir viewsDirectory
 
 [<EntryPoint>]
-let main argv = 
+let main argv =   
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
-     UserSignup
+     UserSignup userPersistence
      browseHome
     ] 
   startWebServer defaultConfig app
