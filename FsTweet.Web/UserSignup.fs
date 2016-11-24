@@ -46,8 +46,8 @@ let tryCreateUser (userPersistence : UserPersistence) signupRequest createUser c
   let! userCreateResult = tryCreateUser createUserPersistence createUser
   match userCreateResult with
   | Ok userCreated ->
-    printfn "%A" userCreated
-    return! Redirection.redirect "/" ctx
+    let redirectPath = sprintf "/signup_success/%s" userCreated.Username.Value
+    return! Redirection.redirect redirectPath ctx
   | Error err ->
     match err with
     | RequestError e | PersistenceError e -> 
@@ -67,7 +67,10 @@ let handleUserSignup userPersistence ctx = async {
 }
 
 let UserSignup userPersistence = 
-  path "/signup" 
-    >=> choose[
+  choose[
+    path "/signup" 
+      >=> choose[
           GET >=> page "signup.html" emptyUserSignupViewModel
           POST >=> handleUserSignup userPersistence]
+    pathScan "/signup_success/%s" (page "signup_success.html")
+  ]
