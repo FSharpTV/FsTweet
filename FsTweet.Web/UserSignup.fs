@@ -9,6 +9,7 @@ open Suave.Operators
 open Suave.DotLiquid
 open Suave.Filters
 open Suave.Form
+open EmailService
 
 type UserSignupViewModel = {
   Username : string
@@ -37,40 +38,65 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-let tryCreateUser (userPersistence : UserPersistence) signupRequest createUser ctx = async {
+let tryCreateUser (userPersistence : UserPersistence) createUser = async {
   let createUserPersistence : CreateUserPersistence = {
     IsUniqueUsername = userPersistence.IsUniqueUsername
     IsUniqueEmailAddress = userPersistence.IsUniqueEmailAddress
     CreateUser = userPersistence.CreateUser
   }
-  let! userCreateResult = tryCreateUser createUserPersistence createUser
-  match userCreateResult with
-  | Ok userCreated ->
-    let redirectPath = sprintf "/signup_success/%s" userCreated.Username.Value
-    return! Redirection.redirect redirectPath ctx
-  | Error err ->
-    match err with
-    | RequestError e | PersistenceError e -> 
-      return! page "signup.html" {signupRequest with Error = e} ctx 
+  return! tryCreateUser createUserPersistence createUser  
 }
 
-let handleUserSignup userPersistence ctx = async {
+let sendActivationEmail sendEmail (userCreated : UserCreated) = 
+  let emailTemplate = """
+    Hi {username},   
+    Your FsTweet account has been created successfully.   
+    <a href="{link}"> Click here </a> to activate your account.
+    
+    Regards
+    FsTweet
+  """
+  let body = 
+    emailTemplate
+      .Replace("{username}", userCreated.Username.Value)
+      .Replace("{link}", "http://localhost:8083/activate/" + userCreated.UserId.Value.ToString())
+
+  let email = {
+    Subject = "Your FsTweet account has been created"
+    From = "email@fstweet.com"
+    Destination = userCreated.EmailAddress.Value
+    Body = body
+    IsBodyHtml = true
+  }
+  sendEmail email
+
+
+let handleUserSignup userPersistence sendEmail ctx = async {
   match bindForm (Form([],[])) ctx.request with
   | Choice1Of2 signupRequest -> 
     match mapCreateUser signupRequest with
     | Ok createUser -> 
-      return! tryCreateUser userPersistence signupRequest createUser ctx
+      let! userCreateResult = tryCreateUser userPersistence createUser
+      match userCreateResult with
+      | Ok userCreated ->
+        sendActivationEmail sendEmail userCreated
+        let redirectPath = sprintf "/signup_success/%s" userCreated.Username.Value
+        return! Redirection.redirect redirectPath ctx
+      | Error err ->
+        match err with
+        | RequestError e | PersistenceError e -> 
+          return! page "signup.html" {signupRequest with Error = e} ctx 
     | Error errs -> 
       return! page "signup.html" {signupRequest with Error = errs.Head} ctx 
   | Choice2Of2 err -> 
     return! page "signup.html" emptyUserSignupViewModel ctx
 }
 
-let UserSignup userPersistence = 
+let UserSignup userPersistence sendEmail = 
   choose[
     path "/signup" 
       >=> choose[
           GET >=> page "signup.html" emptyUserSignupViewModel
-          POST >=> handleUserSignup userPersistence]
+          POST >=> handleUserSignup userPersistence sendEmail]
     pathScan "/signup_success/%s" (page "signup_success.html")
   ]
