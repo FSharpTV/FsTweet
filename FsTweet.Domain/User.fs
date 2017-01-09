@@ -1,9 +1,9 @@
-﻿module FsTweet.Domain.Core
-open System
+﻿module FsTweet.Domain.User
 
-type Error =
-| PersistenceError of string
-| RequestError of string
+open System
+open ResultExtensions
+
+let internal error errorMsg = Error [errorMsg]
 
 type Username = private Username of string with
   member this.Value = 
@@ -11,8 +11,8 @@ type Username = private Username of string with
     username
   static member TryCreate (username : string) =
     match username with
-    | null | ""  -> Error ["Username should not be empty"] 
-    | x when x.Length > 8 -> Error ["Username should not be more than 8 characters"]
+    | null | ""  -> error "Username should not be empty"
+    | x when x.Length > 8 -> error "Username should not be more than 8 characters"
     | x -> Username x |> Ok
 
 type EmailAddress = private EmailAddress of string with
@@ -21,10 +21,10 @@ type EmailAddress = private EmailAddress of string with
     emailAddress
   static member TryCreate (emailAddress : string) =
    try 
-     let _ = new System.Net.Mail.MailAddress(emailAddress)
+     new System.Net.Mail.MailAddress(emailAddress) |> ignore
      EmailAddress emailAddress |> Ok
    with
-     | _ -> Error ["Invalid Email Address"]
+     | _ -> error "Invalid Email Address"
 
 type Password = private Password of string with 
   member this.Value =
@@ -32,8 +32,8 @@ type Password = private Password of string with
     password
   static member TryCreate (password : string) =
     match password with
-    | null | ""  -> Error ["Password should not be empty"] 
-    | x when x.Length < 4 || x.Length > 8 -> Error ["Password should contain only 4-8 characters"]
+    | null | ""  -> error "Password should not be empty"
+    | x when x.Length < 4 || x.Length > 8 -> error "Password should contain only 4-8 characters"
     | x -> Password x |> Ok
 
 type UserId = private UserId of Guid with
@@ -45,14 +45,26 @@ type UserId = private UserId of Guid with
       let id = new Guid(guid)
       UserId id |> Ok
     with
-    | _ -> Error ["Invalid GUID"]
+    | _ -> Error "Invalid GUID"
 
 type UserStatus = Created | Activated
- 
+
 type User = {
-  Id : UserId
   Username : Username
-  Password: Password
   EmailAddress : EmailAddress
+  Password : Password
   Status : UserStatus
+  Id : UserId option
 }
+
+let newUser username emailAddress password =
+  let newUser' username emailAddress password =
+    { Username = username 
+      EmailAddress = emailAddress
+      Password = password 
+      Status = Created
+      Id = None}
+  Ok newUser'
+    <*> Username.TryCreate username
+    <*> EmailAddress.TryCreate emailAddress
+    <*> Password.TryCreate password

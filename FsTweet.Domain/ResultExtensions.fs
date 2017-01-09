@@ -10,9 +10,18 @@ type Result<'T,'E> with
 
 let inline (<*>) fR xR = Result.Apply fR xR
 
-let mapAsyncOkResult f asyncResult = async {
- let! result = asyncResult
- match result with
- | Ok x -> return f x
- | Error err -> return Error err
-}
+type AsyncResultBuilder () =
+    // Async<Result<'a,'c>> * ('a -> Async<Result<'b,'c>>)
+    // -> Async<Result<'b,'c>>
+    member this.Bind(x, f) =
+        async {
+            let! x' = x
+            match x' with
+            | Ok s -> return! f s
+            | Error f -> return Error f }
+    // 'a -> 'a
+    member this.Return x = async {return x}
+    member this.ReturnFrom x = x
+
+ 
+let asyncResult = AsyncResultBuilder ()

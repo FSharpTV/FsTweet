@@ -22,6 +22,8 @@ let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) =
   if not (isNull args.Error) then
     printfn "%A" args.Error
 
+let sendFakeEmail email = printfn "%A" email
+
 [<EntryPoint>]
 let main argv =   
   let smtpConfig = {
@@ -30,11 +32,12 @@ let main argv =
     Host = Environment.GetEnvironmentVariable("SMTP_HOST")
     Port = Environment.GetEnvironmentVariable("SMTP_PORT") |> int
   }
+  let sendEmail = sendEmail onEmailSent smtpConfig
 
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
-     UserSignup userPersistence (sendEmail onEmailSent smtpConfig)
+     UserSignup userPersistence sendFakeEmail
      browseHome
     ] 
   startWebServer defaultConfig app

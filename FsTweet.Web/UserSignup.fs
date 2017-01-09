@@ -1,7 +1,6 @@
 ﻿module FsTweet.Web.UserSignup
 
-open FsTweet.Domain.Core
-open FsTweet.Domain.UserSignup
+open FsTweet.Domain.User
 open FsTweet.Persistence.User
 open ResultExtensions
 open Suave
@@ -17,18 +16,7 @@ type UserSignupViewModel = {
   Password: string
   Error : string
 }
-
-let newCreateUser username emailAddress password : CreateUser = {
-  Username = username
-  EmailAddress = emailAddress
-  Password = password
-}
-
-let mapCreateUser vm =
-  Ok newCreateUser 
-    <*> Username.TryCreate vm.Username
-    <*> EmailAddress.TryCreate vm.Email
-    <*> Password.TryCreate vm.Password
+let toUser vm = newUser vm.Username vm.Email vm.Password  
 
 let emptyUserSignupViewModel = 
   {
@@ -38,16 +26,18 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-let tryCreateUser (userPersistence : UserPersistence) createUser = async {
-  let createUserPersistence : CreateUserPersistence = {
-    IsUniqueUsername = userPersistence.IsUniqueUsername
-    IsUniqueEmailAddress = userPersistence.IsUniqueEmailAddress
-    CreateUser = userPersistence.CreateUser
-  }
-  return! tryCreateUser createUserPersistence createUser  
+let createUser (userPersistence : UserPersistence) (user : User) = asyncResult {
+  let! isUniqueUsername = userPersistence.IsUniqueUsername user.Username
+  match isUniqueUsername with
+  | false -> return Error "Username already exists"
+  | _ -> 
+    let! isUniqueEmailAddress = userPersistence.IsUniqueEmailAddress user.EmailAddress
+    match isUniqueEmailAddress with
+    | false -> return Error "Email address already exists"
+    | _ -> return! userPersistence.CreateUser user
 }
 
-let sendActivationEmail sendEmail (userCreated : UserCreated) = 
+let sendActivationEmail sendEmail (user : User) = 
   let emailTemplate = """
     Hi {username},   
     Your FsTweet account has been created successfully.   
@@ -56,16 +46,16 @@ let sendActivationEmail sendEmail (userCreated : UserCreated) =
     Regards
     FsTweet
   """
-  let body = 
+  let body username userId = 
     emailTemplate
-      .Replace("{username}", userCreated.Username.Value)
-      .Replace("{link}", "http://localhost:8083/activate/" + userCreated.UserId.Value.ToString())
+      .Replace("{username}", username)
+      .Replace("{link}", "http://localhost:8083/activate/" + userId.ToString())
 
   let email = {
     Subject = "Your FsTweet account has been created"
     From = "email@fstweet.com"
-    Destination = userCreated.EmailAddress.Value
-    Body = body
+    Destination = user.EmailAddress.Value
+    Body = body user.Username.Value user.Id.Value.Value
     IsBodyHtml = true
   }
   sendEmail email
@@ -73,21 +63,19 @@ let sendActivationEmail sendEmail (userCreated : UserCreated) =
 
 let handleUserSignup userPersistence sendEmail ctx = async {
   match bindForm (Form([],[])) ctx.request with
-  | Choice1Of2 signupRequest -> 
-    match mapCreateUser signupRequest with
-    | Ok createUser -> 
-      let! userCreateResult = tryCreateUser userPersistence createUser
+  | Choice1Of2 userSignupViewModel -> 
+    match toUser userSignupViewModel with
+    | Ok user -> 
+      let! userCreateResult = createUser userPersistence user
       match userCreateResult with
-      | Ok userCreated ->
-        sendActivationEmail sendEmail userCreated
-        let redirectPath = sprintf "/signup_success/%s" userCreated.Username.Value
-        return! Redirection.redirect redirectPath ctx
-      | Error err ->
-        match err with
-        | RequestError e | PersistenceError e -> 
-          return! page "signup.html" {signupRequest with Error = e} ctx 
+      | Ok user ->
+        sendActivationEmail sendEmail user
+        let redirectPath = sprintf "/signup_success/%s" user.Username.Value
+        return! Redirection.FOUND redirectPath ctx
+      | Error err ->        
+        return! page "signup.html" {userSignupViewModel with Error = err} ctx 
     | Error errs -> 
-      return! page "signup.html" {signupRequest with Error = errs.Head} ctx 
+      return! page "signup.html" {userSignupViewModel with Error = errs.Head} ctx 
   | Choice2Of2 err -> 
     return! page "signup.html" emptyUserSignupViewModel ctx
 }

@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="User.fs" />
-    <Compile Include="Script.fsx" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\FsTweet.Domain\FsTweet.Domain.fsproj">

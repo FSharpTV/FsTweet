@@ -1,50 +1,40 @@
 ﻿module FsTweet.Persistence.User
 
 open System.Collections.Generic
-open FsTweet.Domain.Core
-open FsTweet.Domain.UserSignup
+open FsTweet.Domain.User
 open ResultExtensions
+open System
 
 type UserPersistence = {
-  IsUniqueUsername : Username -> Async<Result<bool,Error>>
-  IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,Error>>
-  CreateUser : CreateUser -> Async<Result<UserCreated, Error>>
+  IsUniqueUsername : Username -> Async<Result<bool,string>>
+  IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,string>>
+  CreateUser : User -> Async<Result<User,string>>
 }
 
 let private users = new Dictionary<UserId, User>()
 
-let private success<'T> (a : 'T) = Ok a |> async.Return
+let internal ok<'T> (a : 'T) = Ok a |> async.Return
 
 let isUniqueUsername username =
   users.Values
   |> Seq.exists (fun user -> user.Username = username)
   |> not
-  |> success
+  |> ok
  
 let isUniqueEmailAddress emailAddress =
   users.Values
   |> Seq.exists (fun user -> user.EmailAddress = emailAddress)
   |> not
-  |> success
+  |> ok
 
-let createUser createUser = 
+let createUser user = 
   let id = System.Guid.NewGuid()
   match UserId.TryCreate (id.ToString()) with
   | Ok userId -> 
-    let newUser = {
-      Id = userId
-      Password = createUser.Password
-      Username = createUser.Username      
-      EmailAddress = createUser.EmailAddress
-      Status = Created
-    }
+    let newUser = { user with Id = Some userId }
     users.Add(userId, newUser)
-    {
-      UserCreated.EmailAddress = createUser.EmailAddress
-      Username = createUser.Username
-      UserId = userId
-    } |> success
-  | Error errs -> PersistenceError errs.Head |> Error |> async.Return
+    ok newUser
+  | Error err -> Error err |> async.Return
 
 let userPersistence = {
   CreateUser = createUser
