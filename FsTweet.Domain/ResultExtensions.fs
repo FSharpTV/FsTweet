@@ -10,9 +10,7 @@ type Result<'T,'E> with
 
 let inline (<*>) fR xR = Result.Apply fR xR
 
-type AsyncResultBuilder () =
-    // Async<Result<'a,'c>> * ('a -> Async<Result<'b,'c>>)
-    // -> Async<Result<'b,'c>>
+type AsyncResultBuilder () =    
     member this.Bind(x, f) =
         async {
             let! x' = x

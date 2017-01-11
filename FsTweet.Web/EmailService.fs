@@ -1,6 +1,7 @@
 module FsTweet.Web.EmailService
 open System.Net
 open System.Net.Mail
+open FsTweet.Domain.User
 
 type SmtpConfig = {
   Username : string
@@ -29,3 +30,26 @@ let sendEmail onEmailSent config email =
   smtpClient.Credentials <- clientCredentials
   smtpClient.SendCompleted.Add onEmailSent
   smtpClient.SendAsync(mail, null)
+
+let sendActivationEmail sendEmail (user : User) = 
+  let emailTemplate = """
+    Hi {username},   
+    Your FsTweet account has been created successfully.   
+    <a href="{link}"> Click here </a> to activate your account.
+    
+    Regards
+    FsTweet
+  """
+  let body username userId = 
+    emailTemplate
+      .Replace("{username}", username)
+      .Replace("{link}", "http://localhost:8083/activate/" + userId.ToString())
+
+  let email = {
+    Subject = "Your FsTweet account has been created"
+    From = "email@fstweet.com"
+    Destination = user.EmailAddress.Value
+    Body = body user.Username.Value user.Id.Value.Value
+    IsBodyHtml = true
+  }
+  sendEmail email
