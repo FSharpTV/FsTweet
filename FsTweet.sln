@@ -1,0 +1,29 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsTweet.Domain", "FsTweet.Domain\FsTweet.Domain.fsproj", "{28E4E187-E21C-4A27-BC66-C817FEBF0F50}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsTweet.Persistence", "FsTweet.Persistence\FsTweet.Persistence.fsproj", "{18C1FB1E-8A0F-46E8-AFF2-0F6F4BB25F6B}"
+EndProject
+Project("{f2a71f9b-5d33-465a-a702-920d77279786}") = "FsTweet.Web", "FsTweet.Web\FsTweet.Web.fsproj", "{E87BCDF4-D87B-440D-BC88-7CE7293895E3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28E4E187-E21C-4A27-BC66-C817FEBF0F50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28E4E187-E21C-4A27-BC66-C817FEBF0F50}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28E4E187-E21C-4A27-BC66-C817FEBF0F50}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28E4E187-E21C-4A27-BC66-C817FEBF0F50}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18C1FB1E-8A0F-46E8-AFF2-0F6F4BB25F6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18C1FB1E-8A0F-46E8-AFF2-0F6F4BB25F6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18C1FB1E-8A0F-46E8-AFF2-0F6F4BB25F6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18C1FB1E-8A0F-46E8-AFF2-0F6F4BB25F6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E87BCDF4-D87B-440D-BC88-7CE7293895E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E87BCDF4-D87B-440D-BC88-7CE7293895E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E87BCDF4-D87B-440D-BC88-7CE7293895E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E87BCDF4-D87B-440D-BC88-7CE7293895E3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
