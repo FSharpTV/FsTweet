@@ -54,7 +54,6 @@ type User = {
   EmailAddress : EmailAddress
   Password : Password
   Status : UserStatus
-  Id : UserId option
 }
 
 let newUser username emailAddress password =
@@ -62,8 +61,7 @@ let newUser username emailAddress password =
     { Username = username 
       EmailAddress = emailAddress
       Password = password 
-      Status = Created
-      Id = None}
+      Status = Created}
   Ok newUser'
     <*> Username.TryCreate username
     <*> EmailAddress.TryCreate emailAddress

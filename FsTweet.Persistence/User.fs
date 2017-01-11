@@ -5,13 +5,18 @@ open FsTweet.Domain.User
 open ResultExtensions
 open System
 
+type UserCreated = {
+  Id : Guid
+  User : User
+}
+
 type UserPersistence = {
   IsUniqueUsername : Username -> Async<Result<bool,string>>
   IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,string>>
-  CreateUser : User -> Async<Result<User,string>>
+  CreateUser : User -> Async<Result<UserCreated,string>>
 }
 
-let private users = new Dictionary<UserId, User>()
+let private users = new Dictionary<Guid, User>()
 
 let internal ok<'T> (a : 'T) = Ok a |> async.Return
 
@@ -29,12 +34,8 @@ let isUniqueEmailAddress emailAddress =
 
 let createUser user = 
   let id = System.Guid.NewGuid()
-  match UserId.TryCreate (id.ToString()) with
-  | Ok userId -> 
-    let newUser = { user with Id = Some userId }
-    users.Add(userId, newUser)
-    ok newUser
-  | Error err -> Error err |> async.Return
+  users.Add(id, user)
+  ok {Id = id; User = user}
 
 let userPersistence = {
   CreateUser = createUser

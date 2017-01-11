@@ -41,19 +41,16 @@ let createUser (userPersistence : UserPersistence) (user : User) = asyncResult {
     | false -> return Error "Email address already exists"
     | _ -> return! userPersistence.CreateUser user
 }
-let handleUserSignup host userPersistence sendEmail ctx = async {
+let handleUserSignup hostUrl userPersistence sendEmail ctx = async {
   match bindForm (Form([],[])) ctx.request with
   | Choice1Of2 userSignupViewModel -> 
     match toUser userSignupViewModel with
     | Ok user -> 
       let! userCreateResult = createUser userPersistence user
       match userCreateResult with
-      | Ok user ->
-        let userId = 
-          match user.Id with
-          | Some id -> id.Value.ToString()
-          | _ -> ""
-        let activationUrl = sprintf "%s%s?userid=%s" host activationPath userId
+      | Ok userCreated ->
+        let userId = userCreated.Id.ToString()
+        let activationUrl = sprintf "%s%s?userid=%s" hostUrl activationPath userId
         sendActivationEmail activationUrl sendEmail user
         let redirectPath = sprintf "%s?username=%s" signupSuccessPath user.Username.Value
         return! Redirection.FOUND redirectPath ctx
@@ -71,12 +68,12 @@ let renderSignupSuccessPage (req : HttpRequest) =
     page signupSuccessPage username
   | None -> page signupSuccessPage ""
 
-let UserSignup host userPersistence sendEmail =   
+let UserSignup hostUrl userPersistence sendEmail =   
   choose[
     path signupPath
       >=> choose[
             GET >=> page signupPage emptyUserSignupViewModel
-            POST >=> handleUserSignup host userPersistence sendEmail]
+            POST >=> handleUserSignup hostUrl userPersistence sendEmail]
     path signupSuccessPath 
       >=> request renderSignupSuccessPage
   ]

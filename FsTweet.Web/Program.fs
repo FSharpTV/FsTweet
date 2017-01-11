@@ -14,18 +14,17 @@ open System
 let currentDirectory =
   let mainExeFileInfo = new FileInfo(Assembly.GetEntryAssembly().Location)
   mainExeFileInfo.Directory
-
 let viewsDirectory = Path.Combine(currentDirectory.FullName, "views")
-setTemplatesDir viewsDirectory
 
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
-
 let sendFakeEmail email = printfn "%A" email
 
 [<EntryPoint>]
-let main argv =   
+let main argv =     
+  setTemplatesDir viewsDirectory
+
   let smtpConfig = {
     Username = Environment.GetEnvironmentVariable("SMTP_USERNAME")
     Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")
@@ -33,11 +32,11 @@ let main argv =
     Port = Environment.GetEnvironmentVariable("SMTP_PORT") |> int
   }
   let sendEmail = sendEmail onEmailSent smtpConfig
-  let host = "http://localhost:8083"
+  let hostUrl = Environment.GetEnvironmentVariable("APP_HOST_URL")
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
-     UserSignup host userPersistence sendFakeEmail
+     UserSignup hostUrl userPersistence sendFakeEmail
      browseHome
     ] 
   startWebServer defaultConfig app
