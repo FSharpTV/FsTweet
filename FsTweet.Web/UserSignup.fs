@@ -11,6 +11,7 @@ open Suave.Operators
 
 let signupPath = "/signup"
 let signupSuccessPath = "/signup_success"
+let activationPath = "/activate"
 let signupPage = "signup.html"
 let signupSuccessPage = "signup_success.html"
 
@@ -40,7 +41,7 @@ let createUser (userPersistence : UserPersistence) (user : User) = asyncResult {
     | false -> return Error "Email address already exists"
     | _ -> return! userPersistence.CreateUser user
 }
-let handleUserSignup userPersistence sendEmail ctx = async {
+let handleUserSignup host userPersistence sendEmail ctx = async {
   match bindForm (Form([],[])) ctx.request with
   | Choice1Of2 userSignupViewModel -> 
     match toUser userSignupViewModel with
@@ -48,8 +49,13 @@ let handleUserSignup userPersistence sendEmail ctx = async {
       let! userCreateResult = createUser userPersistence user
       match userCreateResult with
       | Ok user ->
-        sendActivationEmail sendEmail user
-        let redirectPath = sprintf "%s/%s" signupSuccessPath user.Username.Value
+        let userId = 
+          match user.Id with
+          | Some id -> id.Value.ToString()
+          | _ -> ""
+        let activationUrl = sprintf "%s%s?userid=%s" host activationPath userId
+        sendActivationEmail activationUrl sendEmail user
+        let redirectPath = sprintf "%s?username=%s" signupSuccessPath user.Username.Value
         return! Redirection.FOUND redirectPath ctx
       | Error err ->        
         return! page signupPage {userSignupViewModel with Error = err} ctx 
@@ -59,12 +65,18 @@ let handleUserSignup userPersistence sendEmail ctx = async {
     return! page signupPage emptyUserSignupViewModel ctx
 }
 
-let UserSignup userPersistence sendEmail = 
-  
+let renderSignupSuccessPage (req : HttpRequest) =
+  match req.["username"] with
+  | Some username ->
+    page signupSuccessPage username
+  | None -> page signupSuccessPage ""
+
+let UserSignup host userPersistence sendEmail =   
   choose[
     path signupPath
       >=> choose[
-          GET >=> page signupPage emptyUserSignupViewModel
-          POST >=> handleUserSignup userPersistence sendEmail]
-    pathScan "/signup_success/%s" (page signupSuccessPage)
+            GET >=> page signupPage emptyUserSignupViewModel
+            POST >=> handleUserSignup host userPersistence sendEmail]
+    path signupSuccessPath 
+      >=> request renderSignupSuccessPage
   ]

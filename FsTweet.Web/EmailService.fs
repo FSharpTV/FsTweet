@@ -31,7 +31,7 @@ let sendEmail onEmailSent config email =
   smtpClient.SendCompleted.Add onEmailSent
   smtpClient.SendAsync(mail, null)
 
-let sendActivationEmail sendEmail (user : User) = 
+let sendActivationEmail activationUrl sendEmail (user : User) = 
   let emailTemplate = """
     Hi {username},   
     Your FsTweet account has been created successfully.   
@@ -43,7 +43,7 @@ let sendActivationEmail sendEmail (user : User) =
   let body username userId = 
     emailTemplate
       .Replace("{username}", username)
-      .Replace("{link}", "http://localhost:8083/activate/" + userId.ToString())
+      .Replace("{link}", activationUrl)
 
   let email = {
     Subject = "Your FsTweet account has been created"

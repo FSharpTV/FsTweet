@@ -33,11 +33,11 @@ let main argv =
     Port = Environment.GetEnvironmentVariable("SMTP_PORT") |> int
   }
   let sendEmail = sendEmail onEmailSent smtpConfig
-
+  let host = "http://localhost:8083"
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
-     UserSignup userPersistence sendFakeEmail
+     UserSignup host userPersistence sendFakeEmail
      browseHome
     ] 
   startWebServer defaultConfig app
