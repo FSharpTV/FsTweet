@@ -33,10 +33,11 @@ let main argv =
   }
   let sendEmail = sendEmail onEmailSent smtpConfig
   let hostUrl = Environment.GetEnvironmentVariable("APP_HOST_URL")
+
   let app = 
     choose[
      path "/" >=> page "guest_home.html" ""
-     UserSignup hostUrl userPersistence sendFakeEmail
+     UserSignup hostUrl createUser sendFakeEmail
      browseHome
     ] 
   startWebServer defaultConfig app

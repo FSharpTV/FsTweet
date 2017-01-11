@@ -31,22 +31,10 @@ let emptyUserSignupViewModel =
     Error = ""
   }
 
-let createUser (userPersistence : UserPersistence) (user : User) = asyncResult {
-  let! isUniqueUsername = userPersistence.IsUniqueUsername user.Username
-  match isUniqueUsername with
-  | false -> return Error "Username already exists"
-  | _ -> 
-    let! isUniqueEmailAddress = userPersistence.IsUniqueEmailAddress user.EmailAddress
-    match isUniqueEmailAddress with
-    | false -> return Error "Email address already exists"
-    | _ -> return! userPersistence.CreateUser user
-}
-let handleUserSignup hostUrl userPersistence sendEmail ctx = async {
-  match bindForm (Form([],[])) ctx.request with
-  | Choice1Of2 userSignupViewModel -> 
+let signup createUser sendEmail hostUrl userSignupViewModel ctx = async {
     match toUser userSignupViewModel with
     | Ok user -> 
-      let! userCreateResult = createUser userPersistence user
+      let! userCreateResult = createUser user
       match userCreateResult with
       | Ok userCreated ->
         let userId = userCreated.Id.ToString()
@@ -58,6 +46,12 @@ let handleUserSignup hostUrl userPersistence sendEmail ctx = async {
         return! page signupPage {userSignupViewModel with Error = err} ctx 
     | Error errs -> 
       return! page signupPage {userSignupViewModel with Error = errs.Head} ctx 
+  }
+
+let handleUserSignup hostUrl createUser sendEmail ctx = async {
+  match bindForm (Form([],[])) ctx.request with
+  | Choice1Of2 userSignupViewModel -> 
+    return! signup createUser sendEmail hostUrl userSignupViewModel ctx
   | Choice2Of2 err -> 
     return! page signupPage emptyUserSignupViewModel ctx
 }
@@ -68,12 +62,12 @@ let renderSignupSuccessPage (req : HttpRequest) =
     page signupSuccessPage username
   | None -> page signupSuccessPage ""
 
-let UserSignup hostUrl userPersistence sendEmail =   
+let UserSignup hostUrl createUser sendEmail =   
   choose[
     path signupPath
       >=> choose[
             GET >=> page signupPage emptyUserSignupViewModel
-            POST >=> handleUserSignup hostUrl userPersistence sendEmail]
+            POST >=> handleUserSignup hostUrl createUser sendEmail]
     path signupSuccessPath 
       >=> request renderSignupSuccessPage
   ]
