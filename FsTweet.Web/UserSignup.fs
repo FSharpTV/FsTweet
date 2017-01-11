@@ -8,6 +8,7 @@ open Suave
 open Suave.DotLiquid
 open Suave.Filters
 open Suave.Operators
+open System
 
 let signupPath = "/signup"
 let signupSuccessPath = "/signup_success"
@@ -38,7 +39,7 @@ let signup createUser sendEmail hostUrl userSignupViewModel ctx = async {
       match userCreateResult with
       | Ok userCreated ->
         let userId = userCreated.Id.ToString()
-        let activationUrl = sprintf "%s%s?userid=%s" hostUrl activationPath userId
+        let activationUrl = sprintf "%s%s?userid=%s" hostUrl activationPath userId |> Uri
         sendActivationEmail activationUrl sendEmail user
         let redirectPath = sprintf "%s?username=%s" signupSuccessPath user.Username.Value
         return! Redirection.FOUND redirectPath ctx
