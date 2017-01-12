@@ -11,18 +11,16 @@ open UserSignup
 open FsTweet.Persistence.User
 open EmailService
 open System
-let currentDirectory =
-  let mainExeFileInfo = new FileInfo(Assembly.GetEntryAssembly().Location)
-  mainExeFileInfo.Directory
-let viewsDirectory = Path.Combine(currentDirectory.FullName, "views")
-
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
 let sendFakeEmail email = printfn "%A" email
 
 [<EntryPoint>]
-let main argv =     
+let main argv =    
+  let viewsDirectory = 
+    let currentDirectory = (new FileInfo(Assembly.GetEntryAssembly().Location)).Directory    
+    Path.Combine(currentDirectory.FullName, "views")
   setTemplatesDir viewsDirectory
 
   let smtpConfig = {
