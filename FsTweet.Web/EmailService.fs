@@ -42,7 +42,7 @@ let sendEmail onEmailSent config email =
   smtpClient.SendCompleted.Add onEmailSent
   smtpClient.SendAsync(mail, null)
 
-let sendActivationEmail activationUrl sendEmail (user : User) = 
+let sendActivationEmail activationUrl sendEmail user = 
   let emailTemplate (userName:Username) (link:Uri) = 
     sprintf 
       """
@@ -51,11 +51,14 @@ let sendActivationEmail activationUrl sendEmail (user : User) =
       <a href="%O"> Click here </a> to activate your account.
       
       Regards
-      FsTweet""" userName.Value link
+      FsTweet""" userName.Value link 
+  let emailAddress = 
+    match user.EmailAddress with    
+    | Verified e | Unverified e -> e
 
   sendEmail
    { Subject = "Your FsTweet account has been created"
      From = "email@fstweet.com"
-     Destination = user.EmailAddress.Value
+     Destination = emailAddress.Value
      Body = emailTemplate user.Username activationUrl
      IsBodyHtml = true } 

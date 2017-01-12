@@ -47,21 +47,21 @@ type UserId = private UserId of Guid with
     with
     | _ -> Error "Invalid GUID"
 
-type UserStatus = Created | Activated
+type UserEmailAddress = 
+| Verified of EmailAddress
+| Unverified of EmailAddress
 
 type User = {
   Username : Username
-  EmailAddress : EmailAddress
+  EmailAddress : UserEmailAddress
   Password : Password
-  Status : UserStatus
 }
 
 let newUser username emailAddress password =
   let newUser' username emailAddress password =
     { Username = username 
-      EmailAddress = emailAddress
-      Password = password 
-      Status = Created}
+      EmailAddress = Unverified emailAddress
+      Password = password}
   Ok newUser'
     <*> Username.TryCreate username
     <*> EmailAddress.TryCreate emailAddress
