@@ -12,9 +12,12 @@ open System
 
 let signupPath = "/signup"
 let signupSuccessPath = "/signup_success"
-let activationPath = "/activate"
+let verifyEmailPath = "/verify_email"
 let signupPage = "signup.html"
 let signupSuccessPage = "signup_success.html"
+let notFoundPage = "not_found.html"
+let serverErrorPage = "server_error.html"
+let emailVerifySuccessPage = "email_verify_success.html"
 
 type UserSignupViewModel = {
   Username : string
@@ -39,7 +42,7 @@ let signup createUser sendEmail hostUrl userSignupViewModel ctx = async {
       match userCreateResult with
       | Ok userCreated ->
         let userId = userCreated.Id.ToString()
-        let activationUrl = sprintf "%s%s?userid=%s" hostUrl activationPath userId |> Uri
+        let activationUrl = sprintf "%s%s?userid=%s" hostUrl verifyEmailPath userId |> Uri
         sendActivationEmail activationUrl sendEmail user
         let redirectPath = sprintf "%s?username=%s" signupSuccessPath user.Username.Value
         return! Redirection.FOUND redirectPath ctx
@@ -72,3 +75,31 @@ let UserSignup hostUrl createUser sendEmail =
     path signupSuccessPath 
       >=> request renderSignupSuccessPage
   ]
+
+let verifyUserEmail userId getUser markUserEmailVeified ctx = async {
+  let! getUserResult = getUser userId
+  match getUserResult with
+  | Ok (Some (user : User)) -> 
+    let! emailVerifyResult = markUserEmailVeified userId
+    match emailVerifyResult with
+    | Ok _ -> return! page emailVerifySuccessPage user.Username.Value ctx
+    | Error err -> 
+      printfn "%A" err
+      return! page serverErrorPage "Something went wrong!" ctx 
+  | Ok None -> return! page notFoundPage "User Id not found" ctx
+  | Error err -> 
+    printfn "%A" err
+    return! page serverErrorPage "Something went wrong!" ctx
+}
+
+let handleEmailVerification getUser markUserEmailVeified ctx = async {
+  match ctx.request.["userid"] with
+  | Some userId ->  
+    match UserId.TryCreate userId with
+    | Ok userId -> return! verifyUserEmail userId getUser markUserEmailVeified ctx
+    | Error _ -> return! page notFoundPage "Invalid User Id" ctx
+  | None -> return! page notFoundPage "404!" ctx  
+}
+
+let UserEmailVerification getUser markUserEmailVeified =
+  path verifyEmailPath >=> handleEmailVerification getUser markUserEmailVeified

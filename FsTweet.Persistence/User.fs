@@ -12,10 +12,27 @@ type UserCreated = {
 
 let private users = new Dictionary<Guid, User>()
 
+let ok<'T> (v : 'T)  = Ok v |> async.Return
 let getUserByUsernameOrEmailAddress username emailAddress =
   users.Values
   |> Seq.tryFind (fun user -> user.Username = username || user.EmailAddress = emailAddress)
   |> Ok |> async.Return
+
+let getUser (userId : UserId) =
+  match users.TryGetValue(userId.Value) with
+  | true, user -> ok (Some user) 
+  | _ -> ok None 
+
+let markUserEmailVeified (userId : UserId) =
+  match users.TryGetValue(userId.Value) with
+  | true, user ->
+    match user.EmailAddress with
+    | Verified _ -> ok user
+    | Unverified emailAddress ->
+      let updatedUser = {user with EmailAddress = Verified emailAddress}
+      users.[userId.Value] <- updatedUser
+      ok updatedUser
+  | _ -> Error "user id not found" |> async.Return
 
 let createUser user = asyncResult {
   let! getUserResult = getUserByUsernameOrEmailAddress user.Username user.EmailAddress

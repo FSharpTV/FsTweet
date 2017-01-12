@@ -36,6 +36,7 @@ let main argv =
     choose[
      path "/" >=> page "guest_home.html" ""
      UserSignup hostUrl createUser sendFakeEmail
+     UserEmailVerification getUser markUserEmailVeified
      browseHome
     ] 
   startWebServer defaultConfig app
