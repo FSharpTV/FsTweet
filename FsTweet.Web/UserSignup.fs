@@ -76,13 +76,13 @@ let UserSignup hostUrl createUser sendEmail =
       >=> request renderSignupSuccessPage
   ]
 
-let verifyUserEmail userId getUser markUserEmailVeified ctx = async {
+let verifyUserEmail userId getUser markUserEmailVerified ctx = async {
   let! getUserResult = getUser userId
   match getUserResult with
-  | Ok (Some (user : User)) -> 
-    let! emailVerifyResult = markUserEmailVeified userId
+  | Ok (Some _ ) -> 
+    let! emailVerifyResult = markUserEmailVerified userId
     match emailVerifyResult with
-    | Ok _ -> return! page emailVerifySuccessPage user.Username.Value ctx
+    | Ok (user : User) -> return! page emailVerifySuccessPage user.Username.Value ctx
     | Error err -> 
       printfn "%A" err
       return! page serverErrorPage "Something went wrong!" ctx 
