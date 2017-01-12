@@ -10,35 +10,23 @@ type UserCreated = {
   User : User
 }
 
-type UserPersistence = {
-  IsUniqueUsername : Username -> Async<Result<bool,string>>
-  IsUniqueEmailAddress : EmailAddress -> Async<Result<bool,string>>
-  CreateUser : User -> Async<Result<UserCreated,string>>
-}
-
 let private users = new Dictionary<Guid, User>()
 
-let internal ok<'T> (a : 'T) = Ok a |> async.Return
-
-let isUniqueUsername username =
+let getUserByUsernameOrEmailAddress username emailAddress =
   users.Values
-  |> Seq.exists (fun user -> user.Username = username)
-  |> not
-  |> ok
- 
-let isUniqueEmailAddress emailAddress =
-  users.Values
-  |> Seq.exists (fun user -> user.EmailAddress = emailAddress)
-  |> not
-  |> ok
+  |> Seq.tryFind (fun user -> user.Username = username || user.EmailAddress = emailAddress)
+  |> Ok |> async.Return
 
-let createUser user = 
-  let id = System.Guid.NewGuid()
-  users.Add(id, user)
-  ok {Id = id; User = user}
-
-let userPersistence = {
-  CreateUser = createUser
-  IsUniqueEmailAddress = isUniqueEmailAddress
-  IsUniqueUsername = isUniqueUsername
+let createUser user = asyncResult {
+  let! getUserResult = getUserByUsernameOrEmailAddress user.Username user.EmailAddress
+  match getUserResult with
+  | Some u ->
+    if u.Username = user.Username then
+      return Error "username already exists"
+    else
+      return Error "email address already exists"
+  | None ->
+    let id = System.Guid.NewGuid()
+    users.Add(id, user)
+    return Ok {Id = id; User = user}
 }
