@@ -44,6 +44,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="EmailService.fs" />
     <Compile Include="UserSignup.fs" />
+    <Compile Include="Login.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -62,10 +63,10 @@
     <Folder Include="assets\images\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="views\page.html">
+    <None Include="views\page.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="views\guest_home.html">
+    <None Include="views\guest_home.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="assets\styles.css">
@@ -74,19 +75,22 @@
     <None Include="assets\images\FsTweetLogo.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="views\signup.html">
+    <None Include="views\signup.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="views\signup_success.html">
+    <None Include="views\signup_success.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="views\not_found.html">
+    <None Include="views\not_found.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="views\server_error.html">
+    <None Include="views\server_error.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="views\email_verify_success.html">
+    <None Include="views\email_verify_success.liquid">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="views\login.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

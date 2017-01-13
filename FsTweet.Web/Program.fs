@@ -10,6 +10,7 @@ open Suave.Files
 open UserSignup
 open FsTweet.Persistence.User
 open EmailService
+open Login
 open System
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
@@ -18,6 +19,7 @@ let sendFakeEmail email = printfn "%A" email
 
 [<EntryPoint>]
 let main argv =    
+
   let viewsDirectory = 
     let currentDirectory = (new FileInfo(Assembly.GetEntryAssembly().Location)).Directory    
     Path.Combine(currentDirectory.FullName, "views")
@@ -34,9 +36,10 @@ let main argv =
 
   let app = 
     choose[
-     path "/" >=> page "guest_home.html" ""
+     path "/" >=> page "guest_home.liquid" ""
      UserSignup hostUrl createUser sendFakeEmail
      UserEmailVerification getUser markUserEmailVeified
+     UserLogin
      browseHome
     ] 
   startWebServer defaultConfig app

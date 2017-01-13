@@ -1,4 +1,4 @@
-﻿{% extends "page.html" %}
+﻿{% extends "page.liquid" %}
 
 {% block head %}
   <title> FsTweet - Powered by F# </title>
@@ -22,7 +22,7 @@
     <p>
 		<a class="btn btn-lg btn-success" href="/signup" role="button">Sign up today</a>
 	</p>
-    <a href="#" role="button">Already a user? Sign in</a>
+    <a href="/login" role="button">Already a user? Sign in</a>
   </div>
 </div>
 {% endblock %}
