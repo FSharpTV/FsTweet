@@ -11,7 +11,12 @@ type UserCreated = {
 }
 
 let private users = new Dictionary<Guid, User>()
-
+let addFakeUser username emailAddress password = 
+  match newUser username emailAddress password with  
+  | Ok user -> 
+    let verifiedEmailAddress = Verified (User.emailAddress user.EmailAddress)
+    users.Add(Guid.NewGuid(), {user with EmailAddress = verifiedEmailAddress})
+  | _ -> ()
 let ok<'T> (v : 'T)  = Ok v |> async.Return
 let getUserByUsernameOrEmailAddress username emailAddress =
   users.Values
@@ -22,6 +27,11 @@ let getUser (userId : UserId) =
   match users.TryGetValue(userId.Value) with
   | true, user -> ok (Some user) 
   | _ -> ok None 
+
+let getUserByUsername username =
+  users.Values
+  |> Seq.tryFind (fun user -> user.Username = username)
+  |> ok
 
 let markUserEmailVeified (userId : UserId) =
   match users.TryGetValue(userId.Value) with
@@ -43,7 +53,7 @@ let createUser user = asyncResult {
     else
       return Error "email address already exists"
   | None ->
-    let id = System.Guid.NewGuid()
+    let id = Guid.NewGuid()
     users.Add(id, user)
     return Ok {Id = id; User = user}
 }

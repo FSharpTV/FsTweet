@@ -13,11 +13,11 @@ open System
 let signupPath = "/signup"
 let signupSuccessPath = "/signup_success"
 let verifyEmailPath = "/verify_email"
-let signupPage = "signup.html"
-let signupSuccessPage = "signup_success.html"
-let notFoundPage = "not_found.html"
-let serverErrorPage = "server_error.html"
-let emailVerifySuccessPage = "email_verify_success.html"
+let signupPage = "signup.liquid"
+let signupSuccessPage = "signup_success.liquid"
+let notFoundPage = "not_found.liquid"
+let serverErrorPage = "server_error.liquid"
+let emailVerifySuccessPage = "email_verify_success.liquid"
 
 type UserSignupViewModel = {
   Username : string

@@ -56,6 +56,8 @@ type User = {
   EmailAddress : UserEmailAddress
   Password : Password
 }
+with static member emailAddress = function
+      | Verified e | Unverified e -> e
 
 let newUser username emailAddress password =
   let newUser' username emailAddress password =
@@ -65,4 +67,10 @@ let newUser username emailAddress password =
   Ok newUser'
     <*> Username.TryCreate username
     <*> EmailAddress.TryCreate emailAddress
+    <*> Password.TryCreate password
+
+let loginCredentials username password =
+  let tuple x y = (x,y)
+  Ok tuple
+    <*> Username.TryCreate username
     <*> Password.TryCreate password
