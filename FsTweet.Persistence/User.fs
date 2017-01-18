@@ -14,7 +14,7 @@ let private users = new Dictionary<Guid, User>()
 let addFakeUser username emailAddress password = 
   match newUser username emailAddress password with  
   | Ok user -> 
-    let verifiedEmailAddress = Verified (User.emailAddress user.EmailAddress)
+    let verifiedEmailAddress = Verified user.EmailAddress.Value
     users.Add(Guid.NewGuid(), {user with EmailAddress = verifiedEmailAddress})
   | _ -> ()
 let ok<'T> (v : 'T)  = Ok v |> async.Return

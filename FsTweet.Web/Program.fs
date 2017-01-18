@@ -45,8 +45,8 @@ let main argv =
      UserEmailVerification getUser markUserEmailVeified
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
-     pathScan "/%s" renderUserProfilePage
-     browseHome
+     pathRegex "/assets/*" >=> browseHome
+     pathScan "/%s" renderUserProfilePage     
     ] 
   startWebServer defaultConfig app
   0
