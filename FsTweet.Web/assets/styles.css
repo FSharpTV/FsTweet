@@ -73,3 +73,19 @@
 #confirmPassword {
   margin-bottom: 10px;
 }
+
+.gravatar {
+  border: 1px solid black
+}
+
+.gravatar_name {
+  margin-top: 2px;
+  font-size: 30px;
+  color: grey;
+}
+
+.tweet_read_view {
+  background-color: rgb(240, 247, 254);
+  margin: 5px;
+  padding: 3px;
+}

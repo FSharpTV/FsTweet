@@ -50,14 +50,15 @@ type UserId = private UserId of Guid with
 type UserEmailAddress = 
 | Verified of EmailAddress
 | Unverified of EmailAddress
+with member this.Value = 
+      match this with
+      | Verified e | Unverified e -> e
 
 type User = {
   Username : Username
   EmailAddress : UserEmailAddress
   Password : Password
 }
-with static member emailAddress = function
-      | Verified e | Unverified e -> e
 
 let newUser username emailAddress password =
   let newUser' username emailAddress password =

@@ -52,10 +52,9 @@ let sendActivationEmail activationUrl sendEmail user =
       
       Regards
       FsTweet""" userName.Value link 
-  let emailAddress = User.emailAddress user.EmailAddress
   sendEmail
    { Subject = "Your FsTweet account has been created"
      From = "email@fstweet.com"
-     Destination = emailAddress.Value
+     Destination = user.EmailAddress.Value.Value
      Body = emailTemplate user.Username activationUrl
      IsBodyHtml = true } 
