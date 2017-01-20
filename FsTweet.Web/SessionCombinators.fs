@@ -5,8 +5,12 @@ open Suave.Operators
 open Suave.Cookie
 open Suave.Authentication
 
+let sessionRelativeExpiry = 
+  Session
+  //MaxAge (System.TimeSpan.FromDays(7.))
+
 let sessionSet failureF key value = 
-  statefulForSession
+  stateful sessionRelativeExpiry false
   >=> context (fun ctx ->
                 match HttpContext.state ctx with
                 | Some state -> state.set key value
@@ -14,7 +18,7 @@ let sessionSet failureF key value =
               )
 
 let sessionGet failureF key successF = 
-  statefulForSession 
+  stateful sessionRelativeExpiry false 
   >=> context (fun ctx ->
                 match HttpContext.state ctx with
                 | Some store -> 

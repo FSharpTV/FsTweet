@@ -28,13 +28,13 @@ let main argv =
   setTemplatesDir viewsDirectory
 
   let smtpConfig = {
-    Username = Environment.GetEnvironmentVariable("SMTP_USERNAME")
-    Password = Environment.GetEnvironmentVariable("SMTP_PASSWORD")
-    Host = Environment.GetEnvironmentVariable("SMTP_HOST")
-    Port = Environment.GetEnvironmentVariable("SMTP_PORT") |> int
+    Username = Environment.GetEnvironmentVariable("FST_SMTP_USERNAME")
+    Password = Environment.GetEnvironmentVariable("FST_SMTP_PASSWORD")
+    Host = Environment.GetEnvironmentVariable("FST_SMTP_HOST")
+    Port = Environment.GetEnvironmentVariable("FST_SMTP_PORT") |> int
   }
   let sendEmail = sendEmail onEmailSent smtpConfig
-  let hostUrl = Environment.GetEnvironmentVariable("APP_HOST_URL")
+  let hostUrl = Environment.GetEnvironmentVariable("FST_APP_HOST_URL")
 
   addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
 
@@ -48,6 +48,13 @@ let main argv =
      pathRegex "/assets/*" >=> browseHome
      pathScan "/%s" renderUserProfilePage     
     ] 
-  startWebServer defaultConfig app
+  let serverSecret = Environment.GetEnvironmentVariable("FST_SERVER_SECRET")
+  let config = {
+    defaultConfig with
+      serverKey = System.Text.Encoding.UTF8.GetBytes(serverSecret)
+      bindings = [HttpBinding.mkSimple HTTP "0.0.0.0" 8083]     
+  }
+  
+  startWebServer config app
   0
 
