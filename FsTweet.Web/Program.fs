@@ -14,6 +14,7 @@ open Login
 open System
 open SessionCombinators
 open UserProfile
+open System.Net
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
@@ -34,7 +35,7 @@ let main argv =
     Port = Environment.GetEnvironmentVariable("FST_SMTP_PORT") |> int
   }
   let sendEmail = sendEmail onEmailSent smtpConfig
-  let hostUrl = Environment.GetEnvironmentVariable("FST_APP_HOST_URL")
+  let hostUrl = Environment.GetEnvironmentVariable("FST_SERVER_HOST_URL")
 
   addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
 
@@ -46,13 +47,17 @@ let main argv =
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
-     pathScan "/%s" renderUserProfilePage     
+     UserProfile getUserByUsername
     ] 
   let serverSecret = Environment.GetEnvironmentVariable("FST_SERVER_SECRET")
+  let port =
+    match Sockets.Port.TryParse("FST_SERVER_PORT") with
+    | true, port -> port
+    | _ -> uint16 8083
   let config = {
     defaultConfig with
       serverKey = System.Text.Encoding.UTF8.GetBytes(serverSecret)
-      bindings = [HttpBinding.mkSimple HTTP "0.0.0.0" 8083]     
+      bindings = [HttpBinding.create HTTP IPAddress.Any port]     
   }
   
   startWebServer config app
