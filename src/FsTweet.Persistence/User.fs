@@ -17,9 +17,9 @@ let addFakeUser username emailAddress password =
     users.Add(Guid.NewGuid(), {user with EmailAddress = verifiedEmailAddress})
   | _ -> ()
 let ok<'T> (v : 'T)  = Ok v |> async.Return
-let getUserByEmailAddress emailAddress =
+let getUserByEmailAddress (emailAddress : UserEmailAddress) =
   users.Values
-  |> Seq.tryFind (fun user -> user.EmailAddress = emailAddress)
+  |> Seq.tryFind (fun user -> user.EmailAddress.RawValue = emailAddress.RawValue)
   |> Ok |> async.Return
 
 let getUser (userId : UserId) =

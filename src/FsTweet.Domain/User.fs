@@ -50,9 +50,13 @@ type UserId = private UserId of Guid with
 type UserEmailAddress = 
 | Verified of EmailAddress
 | Unverified of EmailAddress
-with member this.Value = 
+with 
+  member this.Value = 
       match this with
       | Verified e | Unverified e -> e
+  member this.RawValue = 
+      match this with
+      | Verified e | Unverified e -> e.Value
 
 type User = {
   Username : Username
