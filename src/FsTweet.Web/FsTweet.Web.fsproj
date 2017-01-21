@@ -68,7 +68,7 @@
       <Name>FsTweet.Persistence</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
+  <!--<ItemGroup>
     <Folder Include="views\" />
     <Folder Include="assets\" />
     <Folder Include="assets\images\" />
@@ -107,7 +107,7 @@
     <None Include="views\user_profile.liquid">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
+  </ItemGroup>-->
   <Import Project="$(FSharpTargetsPath)" />
   <Choose>
     <When Condition="$(TargetFrameworkIdentifier) == '.NETFramework' And ($(TargetFrameworkVersion) == 'v4.5.1' Or $(TargetFrameworkVersion) == 'v4.5.2' Or $(TargetFrameworkVersion) == 'v4.5.3' Or $(TargetFrameworkVersion) == 'v4.6' Or $(TargetFrameworkVersion) == 'v4.6.1' Or $(TargetFrameworkVersion) == 'v4.6.2' Or $(TargetFrameworkVersion) == 'v4.6.3')">

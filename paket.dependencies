@@ -1,5 +1,6 @@
 source https://www.nuget.org/api/v2
 nuget DotLiquid
+nuget FAKE
 nuget Suave
 nuget Suave.DotLiquid
 nuget Suave.Experimental

@@ -15,7 +15,6 @@ type ProfileViewModel = {
   GravatarUrl : string
   CanPost: bool
 }
-
 let emailToGravatarUrl (email : EmailAddress) =
   use md5 = MD5.Create()
   email.Value.Trim().ToLowerInvariant()  
@@ -54,7 +53,7 @@ let renderProfileForGuest getUserByUsername username ctx = async {
 let renderUserProfilePage getUserByUsername username =
   let renderProfile user =
     page userProfilePage (profileViewModelOfUser user)  
-  secured (renderProfileForGuest getUserByUsername username) renderProfile
+  secured (renderProfileForGuest getUserByUsername username) renderProfile  
   
 let UserProfile getUserByUsername =
   pathScan "/%s" (renderUserProfilePage getUserByUsername)
