@@ -3,18 +3,20 @@ open Fake
 open System.IO
 open System.IO
 open System.Text.RegularExpressions
+open System.Diagnostics
 let buildDir = FullName "build"
 let srcDir = FullName "src"
+let appName = "FsTweet.Web"
 
 let noFilter = (fun _ -> true)
 let copyAssetsDir () =
-  let srcAssetsDir = Path.Combine(srcDir, "FsTweet.Web", "assets")
+  let srcAssetsDir = Path.Combine(srcDir, appName, "assets")
   let targetAssetsDir = Path.Combine(buildDir, "assets")
   DeleteDir targetAssetsDir
   CopyDir targetAssetsDir srcAssetsDir noFilter
 
 let copyViewsDir () =
-  let srcViewsDir = Path.Combine(srcDir, "FsTweet.Web", "views")
+  let srcViewsDir = Path.Combine(srcDir, appName, "views")
   let targetViewsDir = Path.Combine(buildDir, "views")
   DeleteDir targetViewsDir
   CopyDir targetViewsDir srcViewsDir noFilter
@@ -34,33 +36,36 @@ let build () =
 
 Target "Build" (fun _ -> build())
 
-let rec watch() =
-    let codeFolder = FullName "src"
-    use watcher = new FileSystemWatcher(codeFolder, "*.*")    
-    watcher.EnableRaisingEvents <- true
-    watcher.IncludeSubdirectories <- true
-    watcher.Changed.Add(handleWatcherEvents)
-    watcher.Created.Add(handleWatcherEvents)
-    watcher.Renamed.Add(handleWatcherEvents)
-    System.Console.ReadLine() |> ignore
-    watcher.Dispose()
 
-and handleWatcherEvents (e:System.IO.FileSystemEventArgs) =
+let runApp() =
+  let app = Path.Combine(buildDir, appName + ".exe")    
+  execProcess (fun info -> 
+      info.FileName <- app
+      info.Arguments <- "") System.TimeSpan.MaxValue |> ignore
+
+let handleWatcherEvents (e:System.IO.FileSystemEventArgs) =
     let fileExtension = Path.GetExtension(e.FullPath)
     match fileExtension with
     | ".fs" -> build ()
     | ".liquid" -> copyViewsDir ()
     | ".css" | ".png" | ".js" -> copyAssetsDir ()
-    | _ -> ()
-    watch()
+    | _ -> () 
+    killAllCreatedProcesses()
+    runApp() 
 
-Target "Watch" (fun _ -> watch())
+Target "Watch" (fun _ -> 
+  use watcher = new FileSystemWatcher(srcDir, "*.*")    
+  watcher.EnableRaisingEvents <- true
+  watcher.IncludeSubdirectories <- true
+  watcher.Changed.Add(handleWatcherEvents)
+  watcher.Created.Add(handleWatcherEvents)
+  watcher.Renamed.Add(handleWatcherEvents)
+  System.Console.ReadLine() |> ignore
+)
 
 "Clean"
   ==> "UI"
   ==> "Build"
-
-"Build"
   ==> "Watch"
  
 RunTargetOrDefault "Watch"

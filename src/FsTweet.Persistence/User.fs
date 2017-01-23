@@ -17,9 +17,9 @@ let addFakeUser username emailAddress password =
     users.Add(Guid.NewGuid(), {user with EmailAddress = verifiedEmailAddress})
   | _ -> ()
 let ok<'T> (v : 'T)  = Ok v |> async.Return
-let getUserByEmailAddress (emailAddress : UserEmailAddress) =
+let getUserByUsernameOrEmailAddress username (emailAddress : UserEmailAddress) =
   users.Values
-  |> Seq.tryFind (fun user -> user.EmailAddress.RawValue = emailAddress.RawValue)
+  |> Seq.tryFind (fun user -> user.Username = username || user.EmailAddress.RawValue = emailAddress.RawValue)
   |> Ok |> async.Return
 
 let getUser (userId : UserId) =
@@ -43,17 +43,15 @@ let markUserEmailVeified (userId : UserId) =
       ok updatedUser
   | _ -> Error "user id not found" |> async.Return
 
-let createUser user = asyncResult {
-  let! result = getUserByUsername user.Username
+let createUser user = asyncResult {  
+  let! result = getUserByUsernameOrEmailAddress user.Username user.EmailAddress
   match result with
-  | Some _ ->    
-      return Error "username already exists"
-  | None ->
-    let! result = getUserByEmailAddress user.EmailAddress
-    match result with
-    | Some _ -> return Error "email address already exists"
-    | None -> 
-      let id = Guid.NewGuid()
-      users.Add(id, user)
-      return Ok {Id = id; User = user}
+  | Some u -> 
+    match u.Username = user.Username with
+    | true -> return Error "username already exists"
+    | _ -> return Error "email address already exists"
+  | None -> 
+    let id = Guid.NewGuid()
+    users.Add(id, user)
+    return Ok {Id = id; User = user}
 }
