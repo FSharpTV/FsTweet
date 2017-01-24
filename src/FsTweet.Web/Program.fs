@@ -49,8 +49,8 @@ let main argv =
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
-     UserProfile getUserByUsername
-     Tweet createPost
+     Tweet createPost getTweets
+     UserProfile getUserByUsername     
     ] 
   let serverSecret = Environment.GetEnvironmentVariable("FST_SERVER_SECRET")
   let port =

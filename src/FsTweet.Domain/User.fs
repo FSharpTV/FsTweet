@@ -68,7 +68,8 @@ let newUser username emailAddress password =
   let newUser' username emailAddress password =
     { Username = username 
       EmailAddress = Unverified emailAddress
-      Password = password}
+      Password = password}    
+        
   Ok newUser'
     <*> Username.TryCreate username
     <*> EmailAddress.TryCreate emailAddress

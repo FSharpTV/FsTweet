@@ -21,3 +21,8 @@ let createPost username tweet = asyncResult {
       tweets.[username] <- [post]
       return Ok post
 }
+
+let getTweets username = 
+  match tweets.TryGetValue username with
+  | true, posts -> Ok posts |> async.Return
+  | _ -> Ok [] |> async.Return

@@ -32,18 +32,19 @@ let build () =
 Target "Build" (fun _ -> build())
 let runApp() =
   let app = Path.Combine(buildDir, appName + ".exe")    
-  execProcess (fun info -> info.FileName <- app) System.TimeSpan.MaxValue |> ignore
+  if fileExists app then
+    execProcess (fun info -> info.FileName <- app) System.TimeSpan.MaxValue |> ignore
 let onFileChange f =
   killAllCreatedProcesses()
   f()
+  runApp()
 let handleWatcherEvents (e:System.IO.FileSystemEventArgs) =
-    let fileExtension = Path.GetExtension(e.FullPath)
-    match fileExtension with
-    | ".fs" -> onFileChange build 
-    | ".liquid" -> onFileChange copyViewsDir
-    | ".css" | ".png" | ".js" -> onFileChange copyAssetsDir
-    | _ -> ()    
-    runApp() 
+  let fileExtension = Path.GetExtension(e.FullPath)
+  match fileExtension with
+  | ".fs" -> onFileChange build 
+  | ".liquid" -> onFileChange copyViewsDir
+  | ".css" | ".png" | ".js" -> onFileChange copyAssetsDir
+  | _ -> ()
 
 Target "Watch" (fun _ -> 
   use watcher = new FileSystemWatcher(srcDir, "*.*", EnableRaisingEvents = true, IncludeSubdirectories = true)

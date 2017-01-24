@@ -52,7 +52,8 @@ let renderProfileForGuest getUserByUsername username ctx = async {
 
 let renderUserProfilePage getUserByUsername username =
   let renderProfile user =
-    page userProfilePage (profileViewModelOfUser user)  
+    page userProfilePage (profileViewModelOfUser user)
+  printfn "%s" username  
   secured (renderProfileForGuest getUserByUsername username) renderProfile    
 let UserProfile getUserByUsername =
   pathScan "/%s" (renderUserProfilePage getUserByUsername)
