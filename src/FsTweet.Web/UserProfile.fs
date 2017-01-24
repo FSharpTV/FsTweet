@@ -13,7 +13,7 @@ let userProfilePage = "user_profile.liquid"
 type ProfileViewModel = {
   Username : string
   GravatarUrl : string
-  CanPost: bool
+  IsLoggedIn: bool
 }
 let emailToGravatarUrl (email : EmailAddress) =
   use md5 = MD5.Create()
@@ -28,13 +28,13 @@ let profileViewModelOfUser (user : User) =
   {
     GravatarUrl = emailToGravatarUrl user.EmailAddress.Value
     Username = user.Username.Value
-    CanPost = true
+    IsLoggedIn = true
   }
 let profileViewModelOfGuest (user : User) =
   {
     GravatarUrl = emailToGravatarUrl user.EmailAddress.Value
     Username = user.Username.Value
-    CanPost = false
+    IsLoggedIn = false
   }
 
 let renderProfileForGuest getUserByUsername username ctx = async {
@@ -53,7 +53,6 @@ let renderProfileForGuest getUserByUsername username ctx = async {
 let renderUserProfilePage getUserByUsername username =
   let renderProfile user =
     page userProfilePage (profileViewModelOfUser user)  
-  secured (renderProfileForGuest getUserByUsername username) renderProfile  
-  
+  secured (renderProfileForGuest getUserByUsername username) renderProfile    
 let UserProfile getUserByUsername =
   pathScan "/%s" (renderUserProfilePage getUserByUsername)

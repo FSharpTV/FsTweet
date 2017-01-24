@@ -1,8 +1,6 @@
 #r "src/packages/FAKE/tools/FakeLib.dll"
 open Fake
 open System.IO
-open System.IO
-open System.Text.RegularExpressions
 open System.Diagnostics
 let buildDir = FullName "build"
 let srcDir = FullName "src"
@@ -26,40 +24,33 @@ Target "Clean" (fun _ -> CleanDirs [buildDir;])
 Target "UI" (fun _ ->    
               copyAssetsDir()
               copyViewsDir() ) 
-              
-          
- 
 let build () =
   !! "src/FsTweet.sln"
     |> MSBuildRelease buildDir "Build"
     |> ignore  
 
 Target "Build" (fun _ -> build())
-
-
 let runApp() =
   let app = Path.Combine(buildDir, appName + ".exe")    
-  execProcess (fun info -> 
-      info.FileName <- app
-      info.Arguments <- "") System.TimeSpan.MaxValue |> ignore
-
+  execProcess (fun info -> info.FileName <- app) System.TimeSpan.MaxValue |> ignore
+let onFileChange f =
+  killAllCreatedProcesses()
+  f()
 let handleWatcherEvents (e:System.IO.FileSystemEventArgs) =
     let fileExtension = Path.GetExtension(e.FullPath)
     match fileExtension with
-    | ".fs" -> build ()
-    | ".liquid" -> copyViewsDir ()
-    | ".css" | ".png" | ".js" -> copyAssetsDir ()
-    | _ -> () 
-    killAllCreatedProcesses()
+    | ".fs" -> onFileChange build 
+    | ".liquid" -> onFileChange copyViewsDir
+    | ".css" | ".png" | ".js" -> onFileChange copyAssetsDir
+    | _ -> ()    
     runApp() 
 
 Target "Watch" (fun _ -> 
-  use watcher = new FileSystemWatcher(srcDir, "*.*")    
-  watcher.EnableRaisingEvents <- true
-  watcher.IncludeSubdirectories <- true
+  use watcher = new FileSystemWatcher(srcDir, "*.*", EnableRaisingEvents = true, IncludeSubdirectories = true)
   watcher.Changed.Add(handleWatcherEvents)
   watcher.Created.Add(handleWatcherEvents)
   watcher.Renamed.Add(handleWatcherEvents)
+  runApp()
   System.Console.ReadLine() |> ignore
 )
 

@@ -90,3 +90,18 @@
   padding: 3px;
   font-size: larger
 }
+
+#tweet {
+  font-size: large  
+}
+
+.tweet_button {
+  margin-top: 3px;
+  float: right;
+}
+
+.tweet_container {
+  background-color: rgb(240, 247, 254);
+  margin-bottom: 10px;
+  padding: 30px;
+}
