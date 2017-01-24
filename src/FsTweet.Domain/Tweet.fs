@@ -9,13 +9,13 @@ type Tweet = private Tweet of string with
     tweet
   static member TryCreate (tweet : string) =
     match tweet with
-    | null | ""  -> error "tweet should be empty"
-    | x when x.Length > 140 -> error "tweet should not contain more than 140 characters"
+    | null | ""  -> Error "tweet should be empty"
+    | x when x.Length > 140 -> Error "tweet should not contain more than 140 characters"
     | x -> Tweet x |> Ok
 
 
 type Post = {
-  UserId : UserId
+  Username : Username
   Time: DateTimeOffset
   Tweet : Tweet
 }

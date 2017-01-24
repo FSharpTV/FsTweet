@@ -15,6 +15,8 @@ open System
 open SessionCombinators
 open UserProfile
 open System.Net
+open FsTweet.Web.Tweet
+open FsTweet.Persistence.Tweet
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
@@ -48,6 +50,7 @@ let main argv =
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
      UserProfile getUserByUsername
+     Tweet createPost
     ] 
   let serverSecret = Environment.GetEnvironmentVariable("FST_SERVER_SECRET")
   let port =
