@@ -4,9 +4,12 @@ $(function(){
     $.getJSON("/tweets/" + username, function(){
 
     }).done(function(data){
-      console.log(data)
+      var template = $("#tweetReadTmpl").html()
+      Mustache.parse(template); 
+      var htmlOutput = Mustache.render(template, data);
+      $("#tweets").html(htmlOutput)
     }).fail(function(data){
-      console.log(data)
+      alert(data)
     });
   }
 

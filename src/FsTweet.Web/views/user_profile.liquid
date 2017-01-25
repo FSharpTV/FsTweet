@@ -29,10 +29,17 @@
           <li role="presentation">
             <a href="#followers" data-toggle="tab">Followers <span class="badge">24</span></a>
           </li>
-        </ul>
-        <div class="tab-content">
-          <div id="tweets" class="tab-pane fade in active">
-           
+        </ul>        
+        
+        <div class="tab-content">   
+          <script id="tweetReadTmpl" type="text/html">
+            {{#tweets}}
+            <div>
+              <p>{{tweet.value}}</p>
+            </div>
+            {{/tweets}}
+          </script>       
+          <div id="tweets" class="tab-pane fade in active">           
           </div>
           <div id="following" class="tab-pane fade">
             <h3>Following</h3>
@@ -50,6 +57,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
 <script src="assets/js/tweet.js"></script>
 <script src="assets/js/profile.js"></script>
 {% endblock %}
