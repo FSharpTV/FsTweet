@@ -37,23 +37,23 @@ let profileViewModelOfGuest (user : User) =
     IsLoggedIn = false
   }
 
-let renderProfileForGuest getUserByUsername username ctx = async {
+let renderProfile getUserByUsername username f ctx = async {
   match Username.TryCreate username with
   | Ok n -> 
     let! userFindResult = getUserByUsername n
     match userFindResult with
     | Ok (Some user) -> 
-      return! page userProfilePage (profileViewModelOfGuest user) ctx
+      return! page userProfilePage (f user) ctx
     | Ok _ -> return! page notFoundPage "user not found" ctx
     | Error err ->  
       return! page serverErrorPage err ctx
   | _ -> return! page notFoundPage "user not found" ctx
 }
-
 let renderUserProfilePage getUserByUsername username =
-  let renderProfile user =
-    page userProfilePage (profileViewModelOfUser user)
-  printfn "%s" username  
-  secured (renderProfileForGuest getUserByUsername username) renderProfile    
+  let renderProfileForGuest =
+    renderProfile getUserByUsername username profileViewModelOfGuest  
+  let renderProfileForUser _ =
+    renderProfile getUserByUsername username profileViewModelOfUser
+  secured renderProfileForGuest renderProfileForUser    
 let UserProfile getUserByUsername =
   pathScan "/%s" (renderUserProfilePage getUserByUsername)

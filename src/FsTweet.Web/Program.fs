@@ -25,9 +25,10 @@ let sendFakeEmail email = printfn "%A" email
 [<EntryPoint>]
 let main argv =    
 
-  let viewsDirectory = 
-    let currentDirectory = (new FileInfo(Assembly.GetEntryAssembly().Location)).Directory    
-    Path.Combine(currentDirectory.FullName, "views")
+  let currentDirectory = 
+    (new FileInfo(Assembly.GetEntryAssembly().Location)).Directory.FullName 
+  let viewsDirectory =       
+    Path.Combine(currentDirectory, "views")
   setTemplatesDir viewsDirectory
 
   let smtpConfig = {
@@ -40,7 +41,7 @@ let main argv =
   let hostUrl = Environment.GetEnvironmentVariable("FST_SERVER_HOST_URL")
 
   addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
-
+  let faviconPath = Path.Combine(currentDirectory, "assets", "favicon.ico")
   let app = 
     choose[
      path "/" >=> page "guest_home.liquid" ""
@@ -49,6 +50,7 @@ let main argv =
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
+     path "/favicon.ico" >=> Files.file faviconPath
      Tweet createPost getTweets
      UserProfile getUserByUsername     
     ] 
