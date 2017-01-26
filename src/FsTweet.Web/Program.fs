@@ -22,6 +22,11 @@ let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) =
     printfn "%A" args.Error
 let sendFakeEmail email = printfn "%A" email
 
+let addFakeData () =
+  addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
+  addFakeUser "mark" "mark@fsharp.tv" "foobar"
+  addFakeUser "haf" "haf@fsharp.tv" "foobar"
+ 
 [<EntryPoint>]
 let main argv =    
 
@@ -30,6 +35,7 @@ let main argv =
   let viewsDirectory =       
     Path.Combine(currentDirectory, "views")
   setTemplatesDir viewsDirectory
+  let faviconPath = Path.Combine(currentDirectory, "assets", "favicon.ico")
 
   let smtpConfig = {
     Username = Environment.GetEnvironmentVariable("FST_SMTP_USERNAME")
@@ -40,8 +46,9 @@ let main argv =
   let sendEmail = sendEmail onEmailSent smtpConfig
   let hostUrl = Environment.GetEnvironmentVariable("FST_SERVER_HOST_URL")
 
-  addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
-  let faviconPath = Path.Combine(currentDirectory, "assets", "favicon.ico")
+
+  addFakeData ()  
+
   let app = 
     choose[
      path "/" >=> page "guest_home.liquid" ""

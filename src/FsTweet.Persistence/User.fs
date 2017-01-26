@@ -20,7 +20,7 @@ let ok<'T> (v : 'T)  = Ok v |> async.Return
 let getUserByUsernameOrEmailAddress username (emailAddress : UserEmailAddress) =
   users.Values
   |> Seq.tryFind (fun user -> user.Username = username || user.EmailAddress.RawValue = emailAddress.RawValue)
-  |> Ok |> async.Return
+  |> ok
 
 let getUser (userId : UserId) =
   match users.TryGetValue(userId.Value) with
