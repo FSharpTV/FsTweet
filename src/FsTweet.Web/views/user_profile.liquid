@@ -9,9 +9,15 @@
     <div class="col-md-4">
       <img src="{{model.gravatar_url}}" alt="" class="gravatar" />
       <p class="gravatar_name">@{{model.Username}}</p>
+      {% if model.is_following %}
+        <a class="btn btn-primary" href="/follow">Follow</a>
+      {% else %}
+        <a class="btn btn-primary" href="#">Following</a>
+      {% endif %}
       {% if model.is_logged_in %}
         <a class="btn btn-primary" href="/logout">Logout</a>
       {% endif %}
+
     </div>
     <div class="col-md-8">
       

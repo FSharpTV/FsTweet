@@ -17,7 +17,11 @@ let getFollowing username =
   | true, following -> following |> ok
   | _ -> ok [] 
 
-let follow myUsername username =
+let isFollowing myUsername username =
+  match following.TryGetValue myUsername with
+  | true, xs -> List.contains username xs |> ok
+  | _ -> false |> ok
+let followUser myUsername username =
   match following.TryGetValue myUsername with
   | true, xs -> 
     match List.contains username xs with

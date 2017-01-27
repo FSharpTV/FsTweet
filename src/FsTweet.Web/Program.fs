@@ -17,6 +17,7 @@ open UserProfile
 open System.Net
 open FsTweet.Web.Tweet
 open FsTweet.Persistence.Tweet
+open FsTweet.Persistence.Follow
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
@@ -59,9 +60,10 @@ let main argv =
      pathRegex "/assets/*" >=> browseHome
      path "/favicon.ico" >=> Files.file faviconPath
      Tweet createPost getTweets
-     UserProfile getUserByUsername     
+     UserProfile getUserByUsername isFollowing     
     ] 
   let serverSecret = Environment.GetEnvironmentVariable("FST_SERVER_SECRET")
+  
   let port =
     match Sockets.Port.TryParse("FST_SERVER_PORT") with
     | true, port -> port

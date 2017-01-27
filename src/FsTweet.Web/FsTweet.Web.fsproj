@@ -52,6 +52,7 @@
     <Compile Include="Login.fs" />
     <Compile Include="UserProfile.fs" />
     <Compile Include="Tweet.fs" />
+    <Compile Include="Follow.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
