@@ -64,17 +64,17 @@ let renderProfileForGuest getUserByUsername username ctx = async {
 
 
 let getProfileViewModelForUser getUserByUsername isFollowing username (loggedInUser : User) = asyncResult {
-  let! (result : User option) = user getUserByUsername username
+  let! result = user getUserByUsername username
   match result with
   | Some userToFollow -> 
     let vm = {
-      GravatarUrl = emailToGravatarUrl loggedInUser.EmailAddress.Value
-      Username = loggedInUser.Username.Value
+      GravatarUrl = emailToGravatarUrl userToFollow.EmailAddress.Value
+      Username = userToFollow.Username.Value
       IsLoggedIn = true
       IsFollowing = false
       IsSelf = false
     }
-    match userToFollow.Username = loggedInUser.Username with
+    match userToFollow = loggedInUser with
     | true -> return Some {vm with IsSelf = true} |> Ok
     | _ -> 
       let! isFollowingUser = isFollowing loggedInUser.Username userToFollow.Username

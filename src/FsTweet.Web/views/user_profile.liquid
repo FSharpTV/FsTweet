@@ -9,11 +9,13 @@
     <div class="col-md-4">
       <img src="{{model.gravatar_url}}" alt="" class="gravatar" />
       <p class="gravatar_name">@{{model.Username}}</p>
-      {% if model.is_following %}
-        <a class="btn btn-primary" href="/follow">Follow</a>
-      {% else %}
-        <a class="btn btn-primary" href="#">Following</a>
-      {% endif %}
+      {% unless model.is_self %}
+        {% if model.is_following %}
+          <a class="btn btn-primary" href="#" id="follow">Follow</a>
+        {% else %}
+          <a class="btn btn-primary disabled" href="#" id="unfollow">Following</a>
+        {% endif %}
+      {% endunless %}
       {% if model.is_logged_in %}
         <a class="btn btn-primary" href="/logout">Logout</a>
       {% endif %}
@@ -21,7 +23,7 @@
     </div>
     <div class="col-md-8">
       
-      {% if model.is_logged_in %}
+      {% if model.is_self %}
         <div class="row">
           {% include 'tweet_post.liquid' %}   
         </div>     
@@ -33,23 +35,19 @@
             <a href="#tweets" data-toggle="tab">Tweets</a>
           </li>
           <li role="presentation">
-            <a href="#following" data-toggle="tab">Following <span class="badge">42</span></a>
+            <a href="#following" data-toggle="tab">Following <span class="badge" id="followingCount">0</span></a>
           </li>
           <li role="presentation">
-            <a href="#followers" data-toggle="tab">Followers <span class="badge">24</span></a>
+            <a href="#followers" data-toggle="tab">Followers <span class="badge" id="followersCount">0</span></a>
           </li>
         </ul>        
         
         <div class="tab-content">     
           <div id="tweets" class="tab-pane fade in active">           
           </div>
-          <div id="following" class="tab-pane fade">
-            <h3>Following</h3>
-            <p>Todo</p>
+          <div id="following" class="tab-pane fade">            
           </div>
-          <div id="followers" class="tab-pane fade">
-            <h3>Followers</h3>
-            <p>Todo</p>
+          <div id="followers" class="tab-pane fade">            
           </div>
         </div>
       </div>      

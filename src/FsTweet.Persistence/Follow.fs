@@ -35,7 +35,8 @@ let followUser myUsername username =
     match List.contains myUsername xs with
     | true -> ()
     | _ -> 
-      followers.[username] <- [myUsername] @ following.[username]
+      followers.[username] <- [myUsername] @ followers.[username]
   | _ -> 
     followers.Add(username, [myUsername])
+  ok ()
   
