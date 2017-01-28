@@ -16,3 +16,8 @@ let addPost post usernames  =
   usernames
   |> List.iter (addToUserWall post)
   |> ok
+
+let getWallPosts username =
+  match wall.TryGetValue username with
+  | true, posts ->  ok posts
+  | _ -> ok []

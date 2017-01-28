@@ -8,7 +8,7 @@ type WallMessage =
 
 let handleNewPost getFollowers addPost (post : Post) = asyncResult {
   let! followers = getFollowers post.Username
-  return! addPost post followers
+  return! addPost post ([post.Username] @ followers)
 }
 
 let onTweetListener getFollowers addPost = MailboxProcessor.Start(fun inbox ->

@@ -58,7 +58,7 @@ let main argv =
 
   let app = 
     choose[
-     path "/" >=> secured (page "guest_home.liquid" "") Userwall
+     UserHome getWallPosts
      UserSignup hostUrl createUser sendFakeEmail
      UserEmailVerification getUser markUserEmailVeified
      UserLogin getUserByUsername     
