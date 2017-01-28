@@ -1,16 +1,4 @@
-$(function(){
-
-  var tweetReadTmpl = `
-    {{#tweets}}
-      <div>        
-        <div class="tweet_read_view bg-info">
-          <span class="text-muted">@{{username.value}} - {{#timeAgo}}{{time}}{{/timeAgo}}</span>
-          <p>{{tweet.value}}</p>
-        </div>        
-      </div>
-
-    {{/tweets}}
-  `
+$(function(){  
 
   var usernameList = `
     {{#usernames}}
@@ -18,29 +6,15 @@ $(function(){
         <a href="/{{value}}">@{{value}}</a>
       </div>
     {{/usernames}}
-  `
+  `  
 
-  var timeAgo = function () {
-    return function(val, render) {
-      return moment(render(val)).fromNow()
-    };
-  }
-
-  var username = window.location.pathname.substring(1)
+  var username = window.location.pathname.substring(1) 
 
   function loadTweets(username) {
     $.getJSON("/tweets/" + username, function(){
 
     }).done(function(data){
-      if (data.length === 0) {
-        $("#tweets").html('<p class="bg-warning no_tweets">No tweets found <p></div>')
-        return
-      }
-      var htmlOutput = Mustache.render(tweetReadTmpl, {
-        "tweets" : data,
-        "timeAgo" : timeAgo
-      });
-      $("#tweets").html(htmlOutput)
+      renderTweets(data, $("#tweets"))
     }).fail(function(data){
       alert(data)
     });

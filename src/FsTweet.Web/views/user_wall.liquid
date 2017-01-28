@@ -5,7 +5,22 @@
 {% endblock %}
 
 {% block content %}
-  <p>User wall coming here!</p>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-4">
+        <p class="gravatar_name">Hi {{model}}</p>
+        <a href="/{{model}}" class="btn btn-primary">My Profile</a>
+        <a href="/logout" class="btn btn-primary">Logout</a>
+      </div>
+      <div class="col-md-8">
+        <div class="row">
+          {% include 'tweet_post.liquid' %}   
+        </div>
+        <div id="wall">
+
+        </div>
+      </div>
+  </div>
 {% endblock %}
 
 {% block scripts %}

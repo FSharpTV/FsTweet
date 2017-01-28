@@ -2,7 +2,7 @@ $(function(){
    $.getJSON("/wall", function(){
 
     }).done(function(data){
-      console.log(data);
+      window.renderTweets(data, $("#wall"))
     }).fail(function(x){
       console.log(x);
       alert('error');
