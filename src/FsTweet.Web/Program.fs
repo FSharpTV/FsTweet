@@ -18,7 +18,10 @@ open System.Net
 open FsTweet.Web.Tweet
 open FsTweet.Persistence.Tweet
 open FsTweet.Persistence.Follow
+open FsTweet.Persistence.Wall
 open Follow
+open Wall
+open Listeners
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
@@ -51,16 +54,18 @@ let main argv =
 
   addFakeData ()  
 
+  let onTweetListener = onTweetListener getFollowers addPost
+
   let app = 
     choose[
-     path "/" >=> page "guest_home.liquid" ""
+     path "/" >=> secured (page "guest_home.liquid" "") Userwall
      UserSignup hostUrl createUser sendFakeEmail
      UserEmailVerification getUser markUserEmailVeified
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
      path "/favicon.ico" >=> Files.file faviconPath
-     Tweet createPost getTweets
+     Tweet onTweetListener createPost getTweets
      Follow followUser getFollowers getFollowing
      UserProfile getUserByUsername isFollowing     
     ] 

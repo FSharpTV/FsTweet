@@ -47,12 +47,14 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="SessionCombinators.fs" />
     <Compile Include="JsonCombinators.fs" />
+    <Compile Include="Listeners.fs" />
     <Compile Include="EmailService.fs" />
     <Compile Include="UserSignup.fs" />
     <Compile Include="Login.fs" />
     <Compile Include="UserProfile.fs" />
     <Compile Include="Tweet.fs" />
     <Compile Include="Follow.fs" />
+    <Compile Include="Wall.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
