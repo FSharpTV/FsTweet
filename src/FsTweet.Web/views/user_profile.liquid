@@ -1,0 +1,64 @@
+{% extends "page.liquid" %}
+
+{% block head %}
+  <title> {{model.Username}} - FsTweet </title>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <div class="row">
+    <div class="col-md-4">
+      <img src="{{model.gravatar_url}}" alt="" class="gravatar" />
+      <p class="gravatar_name">@{{model.Username}}</p>
+      {% unless model.is_self %}
+        {% if model.is_following %}
+          <a class="btn btn-primary" href="#" id="follow">Follow</a>
+        {% else %}
+          <a class="btn btn-primary disabled" href="#" id="unfollow">Following</a>
+        {% endif %}
+      {% endunless %}
+      {% if model.is_logged_in %}
+        <a class="btn btn-primary" href="/logout">Logout</a>
+      {% endif %}
+
+    </div>
+    <div class="col-md-8">
+      
+      {% if model.is_self %}
+        <div class="row">
+          {% include 'tweet_post.liquid' %}   
+        </div>     
+      {% endif %} 
+               
+      <div class="row">
+        <ul class="nav nav-tabs nav-justified">
+          <li role="presentation" class="active">
+            <a href="#tweets" data-toggle="tab">Tweets</a>
+          </li>
+          <li role="presentation">
+            <a href="#following" data-toggle="tab">Following <span class="badge" id="followingCount">0</span></a>
+          </li>
+          <li role="presentation">
+            <a href="#followers" data-toggle="tab">Followers <span class="badge" id="followersCount">0</span></a>
+          </li>
+        </ul>        
+        
+        <div class="tab-content">     
+          <div id="tweets" class="tab-pane fade in active">           
+          </div>
+          <div id="following" class="tab-pane fade">            
+          </div>
+          <div id="followers" class="tab-pane fade">            
+          </div>
+        </div>
+      </div>      
+    </div>
+  </div>  
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+<script src="assets/js/tweet.js"></script>
+<script src="assets/js/profile.js"></script>
+{% endblock %}

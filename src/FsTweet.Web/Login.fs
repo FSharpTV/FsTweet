@@ -24,7 +24,6 @@ let emptyLoginViewModel = {
   Password = ""
   Error = ""
 }
-
 let redirectToLoginPage errMsg =
   sprintf "%s?error=%s" loginPath errMsg
   |> Redirection.FOUND 

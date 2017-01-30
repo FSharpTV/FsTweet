@@ -6,7 +6,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>FsTweet.Domain</RootNamespace>
     <AssemblyName>FsTweet.Domain</AssemblyName>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -42,6 +42,7 @@
     <Compile Include="AssemblyInfo.fs" />
     <Compile Include="ResultExtensions.fs" />
     <Compile Include="User.fs" />    
+    <Compile Include="Tweet.fs" />    
   </ItemGroup>
   <Import Project="$(FSharpTargetsPath)" />
 </Project>

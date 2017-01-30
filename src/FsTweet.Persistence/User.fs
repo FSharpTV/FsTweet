@@ -9,7 +9,6 @@ type UserCreated = {
   Id : Guid
   User : User
 }
-
 let private users = new Dictionary<Guid, User>()
 let addFakeUser username emailAddress password = 
   match newUser username emailAddress password with  
@@ -18,10 +17,10 @@ let addFakeUser username emailAddress password =
     users.Add(Guid.NewGuid(), {user with EmailAddress = verifiedEmailAddress})
   | _ -> ()
 let ok<'T> (v : 'T)  = Ok v |> async.Return
-let getUserByUsernameOrEmailAddress username emailAddress =
+let getUserByUsernameOrEmailAddress username (emailAddress : UserEmailAddress) =
   users.Values
-  |> Seq.tryFind (fun user -> user.Username = username || user.EmailAddress = emailAddress)
-  |> Ok |> async.Return
+  |> Seq.tryFind (fun user -> user.Username = username || user.EmailAddress.RawValue = emailAddress.RawValue)
+  |> ok
 
 let getUser (userId : UserId) =
   match users.TryGetValue(userId.Value) with
@@ -44,15 +43,14 @@ let markUserEmailVeified (userId : UserId) =
       ok updatedUser
   | _ -> Error "user id not found" |> async.Return
 
-let createUser user = asyncResult {
-  let! getUserResult = getUserByUsernameOrEmailAddress user.Username user.EmailAddress
-  match getUserResult with
-  | Some u ->
-    if u.Username = user.Username then
-      return Error "username already exists"
-    else
-      return Error "email address already exists"
-  | None ->
+let createUser user = asyncResult {  
+  let! result = getUserByUsernameOrEmailAddress user.Username user.EmailAddress
+  match result with
+  | Some u -> 
+    match u.Username = user.Username with
+    | true -> return Error "username already exists"
+    | _ -> return Error "email address already exists"
+  | None -> 
     let id = Guid.NewGuid()
     users.Add(id, user)
     return Ok {Id = id; User = user}

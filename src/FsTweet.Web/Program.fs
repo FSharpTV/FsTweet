@@ -14,18 +14,30 @@ open Login
 open System
 open SessionCombinators
 open UserProfile
+open System.Net
+open FsTweet.Web.Tweet
+open FsTweet.Persistence.Tweet
+open FsTweet.Persistence.Follow
+open Follow
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
 let sendFakeEmail email = printfn "%A" email
 
+let addFakeData () =
+  addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
+  addFakeUser "mark" "mark@fsharp.tv" "foobar"
+  addFakeUser "haf" "haf@fsharp.tv" "foobar"
+ 
 [<EntryPoint>]
 let main argv =    
 
-  let viewsDirectory = 
-    let currentDirectory = (new FileInfo(Assembly.GetEntryAssembly().Location)).Directory    
-    Path.Combine(currentDirectory.FullName, "views")
+  let currentDirectory = 
+    (new FileInfo(Assembly.GetEntryAssembly().Location)).Directory.FullName 
+  let viewsDirectory =       
+    Path.Combine(currentDirectory, "views")
   setTemplatesDir viewsDirectory
+  let faviconPath = Path.Combine(currentDirectory, "assets", "favicon.ico")
 
   let smtpConfig = {
     Username = Environment.GetEnvironmentVariable("FST_SMTP_USERNAME")
@@ -34,9 +46,10 @@ let main argv =
     Port = Environment.GetEnvironmentVariable("FST_SMTP_PORT") |> int
   }
   let sendEmail = sendEmail onEmailSent smtpConfig
-  let hostUrl = Environment.GetEnvironmentVariable("FST_APP_HOST_URL")
+  let hostUrl = Environment.GetEnvironmentVariable("FST_SERVER_HOST_URL")
 
-  addFakeUser "tamizh" "tamizh88@gmail.com" "foobar"
+
+  addFakeData ()  
 
   let app = 
     choose[
@@ -46,13 +59,21 @@ let main argv =
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
-     pathScan "/%s" renderUserProfilePage     
+     path "/favicon.ico" >=> Files.file faviconPath
+     Tweet createPost getTweets
+     Follow followUser getFollowers getFollowing
+     UserProfile getUserByUsername isFollowing     
     ] 
   let serverSecret = Environment.GetEnvironmentVariable("FST_SERVER_SECRET")
+  
+  let port =
+    match Sockets.Port.TryParse("FST_SERVER_PORT") with
+    | true, port -> port
+    | _ -> uint16 8083
   let config = {
     defaultConfig with
       serverKey = System.Text.Encoding.UTF8.GetBytes(serverSecret)
-      bindings = [HttpBinding.mkSimple HTTP "0.0.0.0" 8083]     
+      bindings = [HttpBinding.create HTTP IPAddress.Any port]     
   }
   
   startWebServer config app
