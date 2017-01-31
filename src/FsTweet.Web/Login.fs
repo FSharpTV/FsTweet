@@ -31,7 +31,7 @@ let redirectToLoginPage errMsg =
 let loginSuccess (user : User) =
   authenticated Cookie.CookieLife.Session false      
     >=> sessionSet (redirectToLoginPage "unable to login") userCookieName user
-    >=> Redirection.FOUND ("/" + user.Username.Value)
+    >=> Redirection.FOUND "/"
 
 let validateLogin username password getUserByUsername = asyncResult {
   let! getUserResult = getUserByUsername username

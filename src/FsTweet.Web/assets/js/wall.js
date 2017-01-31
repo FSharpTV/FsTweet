@@ -1,5 +1,6 @@
 $(function(){
-   $.getJSON("/wall", function(){
+   let loadWall = function() {
+     $.getJSON("/wall", function(){
 
     }).done(function(data){
       window.renderTweets(data, $("#wall"))
@@ -7,4 +8,7 @@ $(function(){
       console.log(x);
       alert('error');
     });
+   }
+   loadWall()
+   window.setInterval(loadWall, 1000)
 });
