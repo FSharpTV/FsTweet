@@ -40,17 +40,9 @@ let main argv =
   let viewsDirectory =       
     Path.Combine(currentDirectory, "views")
   setTemplatesDir viewsDirectory
+
   let faviconPath = Path.Combine(currentDirectory, "assets", "favicon.ico")
-
-  let smtpConfig = {
-    Username = Environment.GetEnvironmentVariable("FST_SMTP_USERNAME")
-    Password = Environment.GetEnvironmentVariable("FST_SMTP_PASSWORD")
-    Host = Environment.GetEnvironmentVariable("FST_SMTP_HOST")
-    Port = Environment.GetEnvironmentVariable("FST_SMTP_PORT") |> int
-  }
-  let sendEmail = sendEmail onEmailSent smtpConfig
   let hostUrl = Environment.GetEnvironmentVariable("FST_SERVER_HOST_URL")
-
 
   addFakeData ()  
 
