@@ -18,7 +18,10 @@ open System.Net
 open FsTweet.Web.Tweet
 open FsTweet.Persistence.Tweet
 open FsTweet.Persistence.Follow
+open FsTweet.Persistence.Wall
 open Follow
+open Wall
+open Listeners
 let onEmailSent (args : System.ComponentModel.AsyncCompletedEventArgs) = 
   if not (isNull args.Error) then
     printfn "%A" args.Error
@@ -37,30 +40,24 @@ let main argv =
   let viewsDirectory =       
     Path.Combine(currentDirectory, "views")
   setTemplatesDir viewsDirectory
+
   let faviconPath = Path.Combine(currentDirectory, "assets", "favicon.ico")
-
-  let smtpConfig = {
-    Username = Environment.GetEnvironmentVariable("FST_SMTP_USERNAME")
-    Password = Environment.GetEnvironmentVariable("FST_SMTP_PASSWORD")
-    Host = Environment.GetEnvironmentVariable("FST_SMTP_HOST")
-    Port = Environment.GetEnvironmentVariable("FST_SMTP_PORT") |> int
-  }
-  let sendEmail = sendEmail onEmailSent smtpConfig
   let hostUrl = Environment.GetEnvironmentVariable("FST_SERVER_HOST_URL")
-
 
   addFakeData ()  
 
+  let onTweetListener = onTweetListener getFollowers addPost
+
   let app = 
     choose[
-     path "/" >=> page "guest_home.liquid" ""
+     UserHome getWallPosts
      UserSignup hostUrl createUser sendFakeEmail
      UserEmailVerification getUser markUserEmailVeified
      UserLogin getUserByUsername     
      path "/logout" >=> (clearSession >=> Redirection.FOUND loginPath)
      pathRegex "/assets/*" >=> browseHome
      path "/favicon.ico" >=> Files.file faviconPath
-     Tweet createPost getTweets
+     Tweet onTweetListener createPost getTweets
      Follow followUser getFollowers getFollowing
      UserProfile getUserByUsername isFollowing     
     ] 
